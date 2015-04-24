@@ -1,0 +1,160 @@
+% -*- mode: latex; -*-
+\ifx\wholebook\relax\else
+
+	% Lulu:
+	\documentclass[a4paper,10pt,twoside]{book}
+	\usepackage[
+		papersize={6.13in,9.21in},
+		hmargin={.75in,.75in},
+		vmargin={.75in,1in},
+		ignoreheadfoot
+	]{geometry}
+	\input{../support/latex/common.tex}
+	% \input{../support/latex/commonLuaTex.tex}
+	\setboolean{lulu}{true}
+% --------------------------------------------
+% A4:
+%	\documentclass[a4paper,11pt,twoside]{book}
+%	\input{../support/latex/common.tex}
+%	\usepackage{a4wide}
+% --------------------------------------------    
+\graphicspath{
+	{figures/}
+	{../figures/}
+}
+
+\begin{document}
+\fi
+\sloppy
+
+\chapter{ Introduction}\label{ Introduction}
+Some examples from this book are coming from the book of M. Keeling \& P. Rohani \href{http://press.princeton.edu/titles/8459.html}{\symbol{34}Modeling Infectious Diseases in Humans and Animals\symbol{34}}.
+There is a website with on-line material for the book, where you can find the programs and the background of each program in C++, FORTRAN and Matlab.
+
+Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language.
+
+In order to use Kendrick, you need first to install the last version of Pharo in your computer.
+\section{How to install Pharo}\label{How to install Pharo}
+Pharo is available as a free download from
+\url{http://pharo.org/download}. Click the button for your
+operating system to download the appropriate \ct{.zip} file. For example, the
+full Pharo 4.0 distribution for Mac OS X will be available at
+\url{http://files.pharo.org/platform/Pharo4.0-mac.zip}.
+
+Once that file is unzipped, it will contain everything you need to run
+Pharo (this includes the VM, the image, and the sources, as explained below).
+\section{Pharo components}\label{Pharo components}
+Like many Smalltalk-derived systems, Pharo currently consists of three main
+components. Although you do not need to deal with them directly for the purposes
+of this book, it is important to understand the roles that they play.
+
+\textbf{1.} The \textbf{image} is a current snapshot of a running Pharo system, frozen in
+time. It consists of two files: an \textit{.image} file, which contains the state of
+all of the objects in the system (including classes and methods, since they are
+objects too), and a \textit{.changes} file, which contains the log of all of the
+changes to the source code of the system. For Pharo 4.0, these files are named
+\ct{Pharo4.0.image} and \ct{Pharo4.0.changes}. These files are portable across
+operating systems, and can be copied and run on any appropriate virtual machine.
+
+\textbf{2.} The \textbf{virtual machine} (VM) is the only part of the system that is
+different for each operating system. Pre-compiled virtual machines are available
+for all major computing environments. (For example, on Windows, the VM file is
+named \ct{Pharo.exe}).
+
+\textbf{3.} The \textbf{sources} file contains the source code for all of the parts of
+Pharo that don't change very frequently. For Pharo 4.0, this file is named
+\ct{PharoV40.sources}.
+
+As you work in Pharo, the \textit{.image} and \textit{.changes} files are modified (so you
+need to make sure that they are writable). Always keep these two files together.
+Never edit them directly with a text editor, as Pharo uses them to store the
+objects you work with and to log the changes you make to the source code. It is
+a good idea to keep a backup copy of the downloaded \textit{.image} and \textit{.changes}
+files so you can always start from a fresh image and reload your code.
+
+The \textit{.sources} file and the VM can be read-only, and can be shared between
+different users. All of these files can be placed in the same directory, but it
+is also possible to put the Virtual Machine and sources file in separate
+directory where everyone has access to them. Do whatever works best for your
+style of working and your operating system.
+\section{Launching Pharo}\label{Launching Pharo}
+To start Pharo, double click on the Pharo executable (or, for more advanced
+users, drag and drop the \ct{.image} file onto the VM, or use the command line).
+
+On \textbf{Mac OS X}, double click the \ct{Pharo4.0.app} bundle in the unzipped download.
+
+On \textbf{Linux}, double click (or invoke from the command line) the \ct{pharo}
+executable bash script from the unzipped Pharo folder.
+
+On \textbf{Windows}, enter the unzipped Pharo folder and double click \ct{Pharo.exe}.
+
+In general, Pharo tries to \symbol{34}do the right thing\symbol{34}. If you double click on the VM,
+it looks for an image file in the default location. If you double click on an
+\ct{.image} file, it tries to find the nearest VM to launch it with.
+
+Once you have multiple VMs (or multiple images) installed on your
+machine, the operating system may no longer be able to guess the right one. In this
+case, it is safer to specify exactly which ones you meant to launch, either
+by dragging and dropping the image file onto the VM, or specifying the image on
+the command line (see the next section).
+\subsection{Launching Pharo via the command line}\label{Launching Pharo via the command line}
+The general pattern for launching Pharo from a terminal is:
+
+
+\begin{code}{}
+<Pharo executable> <path to Pharo image>
+\end{code}
+
+\subsubsection{Linux command line}\label{Linux command line}
+For Linux, assuming that you're in the unzipped \ct{pharo4.0} folder:
+
+
+\begin{code}{}
+./pharo shared/Pharo4.0.image
+\end{code}
+
+\subsubsection{Mac OS X command line}\label{Mac OS X command line}
+For Mac OS X, assuming that you're in the directory with the unzipped
+\ct{Pharo4.0.app} bundle:
+
+
+\begin{code}{}
+Pharo4.0.app/Contents/MacOS/Pharo Pharo4.0.app/Contents/Resources/Pharo4.0.image
+\end{code}
+
+
+Incidentally, to drag-and-drop images on Mac OS in Finder, you need to
+right-click on \ct{Pharo4.0.app} and select 'Show Package Contents'.
+\subsubsection{Windows command line}\label{Windows command line}
+For Windows, assuming that you're in the unzipped \ct{Pharo4.0} folder:
+
+
+\begin{code}{}
+Pharo.exe Pharo4.0.image
+\end{code}
+
+\section{The World Menu}\label{The World Menu}
+Once Pharo is running, you should see a single large window, possibly containing
+some open workspace windows (see Figure \ref{worldMenu}). You might notice a menu
+bar, but Pharo mainly makes use of context-dependent pop-up menus.
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/Pharo40.png}\caption{Pharo 4.0 window with World Menu activated.\label{worldMenu}}\end{center}
+\end{figure}
+
+
+Clicking anywhere on the background of the Pharo window will display the
+World Menu. World Menu contains many of the Pharo tools, utilities and settings.
+
+You will see a list of several core tools in Pharo, including the class browser
+and the workspace.
+
+
+
+\ifx\wholebook\relax\else
+   \bibliographystyle{jurabib}
+   \nobibliography{scg}\end{document}
+\fi

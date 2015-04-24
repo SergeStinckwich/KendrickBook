@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>{Modelling Infectious Diseases with Kendrick}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Highlight js -->
+    <link rel="stylesheet" href="../support/html/highlightjs/styles/default.css">
+    <link rel="stylesheet" href="../support/html/css/highlight-commands.css">
+    <script src="../support/html/highlightjs/highlight.pack.js"></script>
+    <script src="../support/html/js/highlight-commands.js"></script>
+
+    <!-- Bootstrap -->
+    <link href="../support/html/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../support/html/css/bootstrap-theme.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 55em; }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <div class="container text-justify">
+      <h2> Introduction</h2><a id=" Introduction"></a>
+<p>Some examples from this book are coming from the book of M. Keeling &amp; P. Rohani <a href="http://press.princeton.edu/titles/8459.html">"Modeling Infectious Diseases in Humans and Animals"</a>.
+There is a website with on-line material for the book, where you can find the programs and the background of each program in C++, FORTRAN and Matlab.</p>
+<p>Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language.</p>
+<p>In order to use Kendrick, you need first to install the last version of Pharo in your computer.</p>
+<h3>1. How to install Pharo</h3><a id="How to install Pharo"></a><p>Pharo is available as a free download from
+<a href="http://pharo.org/download">http://pharo.org/download</a>. Click the button for your
+operating system to download the appropriate <code>.zip</code> file. For example, the
+full Pharo 4.0 distribution for Mac OS X will be available at
+<a href="http://files.pharo.org/platform/Pharo4.0-mac.zip">http://files.pharo.org/platform/Pharo4.0-mac.zip</a>.</p>
+<p>Once that file is unzipped, it will contain everything you need to run
+Pharo (this includes the VM, the image, and the sources, as explained below).</p>
+<h3>2. Pharo components</h3><a id="Pharo components"></a>
+<p>Like many Smalltalk-derived systems, Pharo currently consists of three main
+components. Although you do not need to deal with them directly for the purposes
+of this book, it is important to understand the roles that they play.</p>
+<p><strong>1.</strong> The <strong>image</strong> is a current snapshot of a running Pharo system, frozen in
+time. It consists of two files: an <em>.image</em> file, which contains the state of
+all of the objects in the system (including classes and methods, since they are
+objects too), and a <em>.changes</em> file, which contains the log of all of the
+changes to the source code of the system. For Pharo 4.0, these files are named
+<code>Pharo4.0.image</code> and <code>Pharo4.0.changes</code>. These files are portable across
+operating systems, and can be copied and run on any appropriate virtual machine.</p>
+<p><strong>2.</strong> The <strong>virtual machine</strong> (VM) is the only part of the system that is
+different for each operating system. Pre-compiled virtual machines are available
+for all major computing environments. (For example, on Windows, the VM file is
+named <code>Pharo.exe</code>).</p>
+<p><strong>3.</strong> The <strong>sources</strong> file contains the source code for all of the parts of
+Pharo that don't change very frequently. For Pharo 4.0, this file is named
+<code>PharoV40.sources</code>.</p>
+<p>As you work in Pharo, the <em>.image</em> and <em>.changes</em> files are modified (so you
+need to make sure that they are writable). Always keep these two files together.
+Never edit them directly with a text editor, as Pharo uses them to store the
+objects you work with and to log the changes you make to the source code. It is
+a good idea to keep a backup copy of the downloaded <em>.image</em> and <em>.changes</em>
+files so you can always start from a fresh image and reload your code.</p>
+<p>The <em>.sources</em> file and the VM can be read-only, and can be shared between
+different users. All of these files can be placed in the same directory, but it
+is also possible to put the Virtual Machine and sources file in separate
+directory where everyone has access to them. Do whatever works best for your
+style of working and your operating system.</p>
+<h3>3. Launching Pharo</h3><a id="Launching Pharo"></a>
+<p>To start Pharo, double click on the Pharo executable (or, for more advanced
+users, drag and drop the <code>.image</code> file onto the VM, or use the command line).</p>
+<p>On <strong>Mac OS X</strong>, double click the <code>Pharo4.0.app</code> bundle in the unzipped download.</p>
+<p>On <strong>Linux</strong>, double click (or invoke from the command line) the <code>pharo</code>
+executable bash script from the unzipped Pharo folder.</p>
+<p>On <strong>Windows</strong>, enter the unzipped Pharo folder and double click <code>Pharo.exe</code>.</p>
+<p>In general, Pharo tries to &quot;do the right thing&quot;. If you double click on the VM,
+it looks for an image file in the default location. If you double click on an
+<code>.image</code> file, it tries to find the nearest VM to launch it with.</p>
+<p>Once you have multiple VMs (or multiple images) installed on your
+machine, the operating system may no longer be able to guess the right one. In this
+case, it is safer to specify exactly which ones you meant to launch, either
+by dragging and dropping the image file onto the VM, or specifying the image on
+the command line (see the next section).</p>
+<h4>3.1. Launching Pharo via the command line</h4><a id="Launching Pharo via the command line"></a>
+<p>The general pattern for launching Pharo from a terminal is:</p>
+<p><figure><pre><code class="smalltalk">&lt;Pharo executable&gt; &lt;path to Pharo image&gt;</code></pre><figcaption></figcaption></figure></p>
+<h5>3.1.1. Linux command line</h5><a id="Linux command line"></a>
+<p>For Linux, assuming that you're in the unzipped <code>pharo4.0</code> folder:</p>
+<p><figure><pre><code class="smalltalk">./pharo shared/Pharo4.0.image</code></pre><figcaption></figcaption></figure></p>
+<h5>3.1.2. Mac OS X command line</h5><a id="Mac OS X command line"></a>
+<p>For Mac OS X, assuming that you're in the directory with the unzipped
+<code>Pharo4.0.app</code> bundle:</p>
+<p><figure><pre><code class="smalltalk">Pharo4.0.app/Contents/MacOS/Pharo Pharo4.0.app/Contents/Resources/Pharo4.0.image</code></pre><figcaption></figcaption></figure></p>
+<p>Incidentally, to drag-and-drop images on Mac OS in Finder, you need to
+right-click on <code>Pharo4.0.app</code> and select 'Show Package Contents'.</p>
+<h5>3.1.3. Windows command line</h5><a id="Windows command line"></a>
+<p>For Windows, assuming that you're in the unzipped <code>Pharo4.0</code> folder:</p>
+<p><figure><pre><code class="smalltalk">Pharo.exe Pharo4.0.image</code></pre><figcaption></figcaption></figure></p>
+<h3>4. The World Menu</h3><a id="The World Menu"></a>
+<p>Once Pharo is running, you should see a single large window, possibly containing
+some open workspace windows (see Figure <a href="#worldMenu">4.1</a>). You might notice a menu
+bar, but Pharo mainly makes use of context-dependent pop-up menus.</p>
+<p><a name="worldMenu"></a><figure><img src="figures/Pharo40.png" width="100%"></img><figcaption>4.1. Pharo 4.0 window with World Menu activated</figcaption></figure></p>
+<p>Clicking anywhere on the background of the Pharo window will display the
+World Menu. World Menu contains many of the Pharo tools, utilities and settings.</p>
+<p>You will see a list of several core tools in Pharo, including the class browser
+and the workspace.</p>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../support/html/js/bootstrap.min.js"></script>
+
+    <!-- Syntax highlighting of code blocks -->
+    <script>hljs.initHighlightingOnLoad();</script>
+
+  </body>
+</html>

@@ -1,0 +1,15 @@
+\BOOKMARK [0][-]{chapter.1}{ Introduction}{}% 1
+\BOOKMARK [1][-]{section.1.1}{How to install Pharo}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Pharo components}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{Launching Pharo}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.4}{The World Menu}{chapter.1}% 5
+\BOOKMARK [0][-]{chapter.2}{ Introduction to Simple Epidemic Model}{}% 6
+\BOOKMARK [1][-]{section.2.1}{ Simple SIR \(without births and deaths\)}{chapter.2}% 7
+\BOOKMARK [1][-]{section.2.2}{ SIR model with births and deaths}{chapter.2}% 8
+\BOOKMARK [1][-]{section.2.3}{ SIR model with disease induced mortality and density dependent transmission}{chapter.2}% 9
+\BOOKMARK [1][-]{section.2.4}{ SIR model, disease induced mortality and frequency dependent transmission}{chapter.2}% 10
+\BOOKMARK [1][-]{section.2.5}{ SIS model without births or deaths}{chapter.2}% 11
+\BOOKMARK [1][-]{section.2.6}{ SEIR model with births and deaths}{chapter.2}% 12
+\BOOKMARK [1][-]{section.2.7}{ SIR with a carrier state}{chapter.2}% 13
+\BOOKMARK [0][-]{chapter.3}{ Host Heterogeneities}{}% 14
+\BOOKMARK [0][-]{chapter.4}{ Multi-Pathogen/Multi-Host Models}{}% 15

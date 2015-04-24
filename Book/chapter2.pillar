@@ -1,0 +1,152 @@
+! Introduction to Simple Epidemic Model
+
+!! Simple SIR (without births and deaths)
+
+Program 2.1 is a simple SIR model (page 19 of the book). These are the equations and the code of the model:
+
+!!! Equations
+{{{latex:
+\begin{equation}
+\frac{dS}{dt} = -\beta*S*I
+\end{equation}
+\begin{equation}
+\frac{dI}{dt} = \beta*S*I-\gamma*I
+\end{equation}
+\begin{equation}
+\frac{dR}{dt} = \gamma*I
+\end{equation}
+}}}
+
+!!! Pharo code
+[[[language=smalltalk
+|solver system dt beta gamma values stepper diag colors maxTime|
+dt := 1.0.
+beta := 1.4247.
+gamma := 0.14286.
+maxTime := 70.0.
+system := ExplicitSystem block: [ :x :t| |c|
+     c := Array new: 3.
+     c at: 1 put: (beta negated) * (x at: 1) * (x at: 2).
+     c at: 2 put: (beta * (x at: 1) * (x at: 2)) - (gamma * (x at: 2)).
+     c at: 3 put: gamma * (x at: 2).
+     c
+     ].
+stepper := RungeKuttaStepper onSystem: system.
+solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
+state := { 1-1e-6. 1e-6. 0}.
+values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
+                                                          time: t stepSize: dt ].
+diag := OrderedCollection new.
+colors := Array with: Color blue with: Color red with: Color green.
+1 to: 3 do: [ :i|
+    diag add:
+        ((GETLineDiagram new)
+            models: (1 to: maxTime+1 by: 1);
+            y: [ :x| (values at: x) at: i ];
+            color: (colors at: i))
+     ].
+builder := (GETDiagramBuilder new).
+builder compositeDiagram
+    xAxisLabel: 'Time in days';
+    yAxisLabel: 'Number of Individuals';
+    regularAxis;
+    diagrams: diag.
+builder open.
+]]]
+
+!! SIR model with births and deaths
+!!! Equations
+{{{latex:
+\begin{equation}
+\frac{dS}{dt} = \mu-\beta*S*I-\mu*S
+\end{equation}
+\begin{equation}
+\frac{dI}{dt} = \beta*S*I-\gamma*I-\mu*I
+\end{equation}
+\begin{equation}
+\frac{dR}{dt} = \gamma*I-\mu*R
+\end{equation}
+}}}
+
+!!! Pharo code
+[[[language=smalltalk
+|solver system dt beta gamma values stepper diag mu colors maxTime|
+dt := 1.0.
+mu := 1/(70*365.0).
+beta := 520/365.0.
+gamma := 1/7.0.
+maxTime := 60*365.
+system := ExplicitSystem block: [ :x :t| |c|
+     c := Array new: 3.
+     c at: 1 put: mu - (beta  * (x at: 1) * (x at: 2)) - (mu * (x at:1)).
+     c at: 2 put: (beta * (x at: 1) * (x at: 2)) - (gamma * (x at: 2)) - (mu * (x at:2)).
+     c at: 3 put: (gamma * (x at: 2)) - (mu * (x at: 2)).
+     c
+     ].
+
+stepper := RungeKuttaStepper onSystem: system.
+solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
+state := { 0.1. 1e-4. 1-0.1-1e-4}.
+values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
+                                                          time: t stepSize: dt ].
+diag := OrderedCollection new.
+colors := Array with: Color blue with: Color red with: Color green.
+1 to: 3 do: [ :i|
+    diag add:
+        ((GETLineDiagram new)
+            models: (1 to: maxTime+1 by: 1);
+            y: [ :x| (values at: x) at: i ];
+            color: (colors at: i))
+     ].
+builder := (GETDiagramBuilder new).
+builder compositeDiagram
+    xAxisLabel: 'Time in days';
+    yAxisLabel: 'Number of Individuals';
+    regularAxis;
+    diagrams: diag.
+builder open.
+
+]]]
+
+!! SIR model with disease induced mortality and density dependent transmission
+!!! Equations
+{{{latex:
+\begin{equation}
+\frac{dX}{dt} = \nu-\beta*X*Y-\mu*X
+\end{equation}
+\begin{equation}
+\frac{dY}{dt} = \beta*X*Y-\frac{\gamma+\mu}{1-\rho}*Y
+\end{equation}
+\begin{equation}
+\frac{dZ}{dt} = \gamma*Y-\mu*Z
+\end{equation}
+}}}
+
+!! SIR model, disease induced mortality and frequency dependent transmission
+!!! Equations
+{{{latex:
+\begin{equation}
+\frac{dX}{dt} = \nu-\beta*X*Y/N-\mu*X
+\end{equation}
+\begin{equation}
+\frac{dY}{dt} = \beta*X*Y/N-\frac{\gamma+\mu}{1-\rho}*Y
+\end{equation}
+\begin{equation}
+\frac{dZ}{dt} = \gamma*Y-\mu*Z
+\end{equation}
+}}}
+!!! Pharo code
+
+!! SIS model without births or deaths
+!!!Equations
+{{{latex:
+\begin{equation}
+\frac{dS}{dt} = \gamma*I-\beta*S*I
+\end{equation}
+\begin{equation}
+\frac{dI}{dt} = \beta*S*I-\gamma*I
+\end{equation}
+}}}
+
+!! SEIR model with births and deaths
+!! SIR with a carrier state
