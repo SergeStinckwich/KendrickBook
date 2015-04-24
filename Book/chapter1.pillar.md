@@ -11,6 +11,7 @@ In order to use Kendrick, you need first to install the last version of Pharo in
 
 
 
+
 ###1\. How to install Pharo
 <a name="How to install Pharo"></a>Pharo is available as a free download from
 [http://pharo\.org/download](http://pharo.org/download)\. Click the button for your
