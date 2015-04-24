@@ -124,3 +124,8 @@ World Menu. World Menu contains many of the Pharo tools, utilities and settings.
 
 You will see a list of several core tools in Pharo, including the class browser
 and the workspace.
+
+!!Install Kendrick
+From the the World Menu, select the "Tools" and after that the Configuration Browser.
+Find in the Configuration Browser, the Kendrick configuration and select it. Click on "Install Stable version".
+You need to be connected to the Internet, in order to download the Kendrick package.

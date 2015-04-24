@@ -11,7 +11,6 @@ In order to use Kendrick, you need first to install the last version of Pharo in
 
 
 
-
 ###1\. How to install Pharo
 <a name="How to install Pharo"></a>Pharo is available as a free download from
 [http://pharo\.org/download](http://pharo.org/download)\. Click the button for your
@@ -159,3 +158,10 @@ World Menu\. World Menu contains many of the Pharo tools, utilities and settings
 
 You will see a list of several core tools in Pharo, including the class browser
 and the workspace\.
+
+
+
+###5\. Install Kendrick
+<a name="Install Kendrick"></a>From the the World Menu, select the "Tools" and after that the Configuration Browser\.
+Find in the Configuration Browser, the Kendrick configuration and select it\. Click on "Install Stable version"\.
+You need to be connected to the Internet, in order to download the Kendrick package\.
