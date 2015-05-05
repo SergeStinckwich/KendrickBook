@@ -1,5 +1,20 @@
 ! Introduction to Simple Epidemic Model
 
+The targeted model of the ""Kendrick"" language is compartmental model such as the SIR, SEIR model ... in which the individuals are first considered as ''Susceptible'' to pathogen (status S), then can be infected, assumed ''Infectious'' (status I) that can spread the infection and ''Recovery'' (status R) who are immunised and cannot become infected again. The transition of status between compartments is represented mathematically as derivatives of compartment size with respect to time.
+
+At the moment, ""Kendrick"" supports for the mathematical models of epidemiology based on ordinary differential equations (""ODEs""). The system of ODEs followed represents the SIR classic model of epidemiology:
+
++Mathematical description of SIR model using ODEs>file://figures/equation1.png|label=equation1|width=35+
+
+These models are specified using the Kendrick language and modeled using the simulation module integrated into the platform.
+The simulator takes the Kendrick model (the epidemiological model written in Kendrick language) and performs a simulation algorithm and give out the result showing the spatial and temporal evolution dynamics of each compartment. This visualization is done by using Roassal.
+
+The simulation module supports three modeling formalisms: deterministic, stochastic and individual-based (also called agent-based).
+The modelers can switch between the simulation modes by indicating the algorithm used. At the moment, we use the RK4 method for deterministically resolving ODEs.
+The stochastic simulation converts the ODEs of the model to events and using Gillespie's algorithms to generate stochastic model.
+The individual-based simulator allows to reach the model at more detailed level.
+
+
 !! Simple SIR (without births and deaths)
 
 Program 2.1 is a simple SIR model (page 19 of the book). These are the equations and the code of the model:
@@ -53,6 +68,26 @@ builder compositeDiagram
     diagrams: diag.
 builder open.
 ]]]
+
+!!! Kendrick code
+[[[language=smalltalk
+| model |
+	model := KEModel new.
+	model
+		buildFromCompartments:
+			'{
+		{ #status: #S }: 99999,
+		{ #status: #I }: 1,
+		{ #status: #R }: 0
+	}'.
+	model addParameters: '{#beta: 0.0052, #gamma: 52}'.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #I}'
+		probability: [ :m | (m atParameter: #beta) * (m atCompartment: '{#status: #I}') ].
+	model addTransitionFrom: '{#status: #I}' to: '{#status: #R}' probability: [ :m | m atParameter: #gamma ].
+]]]
+
 
 !! SIR model with births and deaths
 !!! Equations

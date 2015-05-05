@@ -1,9 +1,12 @@
 ! Introduction
 
+Understanding how infectious diseases propagate is a key challenge for the 21st century. Mathematical modelling is a powerful method for studying complex systems that is commonly used in many scientific disciplines. It is widely used to carry out researches on modelling infectious diseases in order to study the mechanisms of transmission, explore characteristics of epidemics, predict the future course of an outbreak and evaluate strategies to find a best control-program. The first mathematical model of epidemiology was proposed by Daniel Bernoulli in 1766 to defend the practice of inoculation against smallpox. The major contribution to modern mathematical epidemiology was carried out by Kermack and McKendrick who had formulated a compartmental model based on relatively simple assumptions on the rates of flow between different classes categorised by epidemiological status.
+
+Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language. This book shows how to visualize
+the spatio-temporal evolution of epidemiological models using Roassal.
+
 Some examples from this book are coming from the book of M. Keeling & P. Rohani *"Modeling Infectious Diseases in Humans and Animals">http://press.princeton.edu/titles/8459.html*.
 There is a website with on-line material for the book, where you can find the programs and the background of each program in C++, FORTRAN and Matlab.
-
-Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language.
 
 In order to use Kendrick, you need first to install the last version of Pharo in your computer.
 
