@@ -70,6 +70,13 @@ builder open.
 ]]]
 
 !!! Kendrick code
+
+We use now the Kendrick DSL to express the SIR model.
+We start to create an instance of KEModel and then enumerate the compartment names with their initial value.
+In this model, we have 3 compartments S, I and R.
+There is at least one infected in order to start the process.
+2 transitions are added to the model, one from S to I and another one from I to R.
+
 [[[language=smalltalk
 | model |
 	model := KEModel new.
