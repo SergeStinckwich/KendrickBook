@@ -1,7 +1,7 @@
 
 
 ## Introduction
-<a name=" Introduction"></a>
+
 Understanding how infectious diseases propagate is a key challenge for the 21st century\. Mathematical modelling is a powerful method for studying complex systems that is commonly used in many scientific disciplines\. It is widely used to carry out researches on modelling infectious diseases in order to study the mechanisms of transmission, explore characteristics of epidemics, predict the future course of an outbreak and evaluate strategies to find a best control\-program\. The first mathematical model of epidemiology was proposed by Daniel Bernoulli in 1766 to defend the practice of inoculation against smallpox\. The major contribution to modern mathematical epidemiology was carried out by Kermack and McKendrick who had formulated a compartmental model based on relatively simple assumptions on the rates of flow between different classes categorised by epidemiological status\.
 
 Kendrick is a domain\-specific modelling language that provide tools in order to design, explore and visualize your epidemics models\. Kendrick is an embedded DSL and use the Pharo programming language as its host language\. This book shows how to visualize
@@ -15,7 +15,7 @@ In order to use Kendrick, you need first to install the last version of Pharo in
 
 
 ###1\. How to install Pharo
-<a name="How to install Pharo"></a>Pharo is available as a free download from
+Pharo is available as a free download from
 [http://pharo\.org/download](http://pharo.org/download)\. Click the button for your
 operating system to download the appropriate `.zip` file\. For example, the
 full Pharo 4\.0 distribution for Mac OS X will be available at
@@ -27,7 +27,7 @@ Pharo \(this includes the VM, the image, and the sources, as explained below\)\.
 
 
 ###2\. Pharo components
-<a name="Pharo components"></a>
+
 Like many Smalltalk\-derived systems, Pharo currently consists of three main
 components\. Although you do not need to deal with them directly for the purposes
 of this book, it is important to understand the roles that they play\.
@@ -65,7 +65,7 @@ style of working and your operating system\.
 
 
 ###3\. Launching Pharo
-<a name="Launching Pharo"></a>
+
 To start Pharo, double click on the Pharo executable \(or, for more advanced
 users, drag and drop the `.image` file onto the VM, or use the command line\)\.
 
@@ -89,7 +89,7 @@ the command line \(see the next section\)\.
 
 
 ####3\.1\. Launching Pharo via the command line
-<a name="Launching Pharo via the command line"></a>
+
 The general pattern for launching Pharo from a terminal is:
 
 
@@ -103,7 +103,7 @@ The general pattern for launching Pharo from a terminal is:
 
 
 #####3\.1\.1\. Linux command line
-<a name="Linux command line"></a>
+
 For Linux, assuming that you're in the unzipped `pharo4.0` folder:
 
 
@@ -117,7 +117,7 @@ For Linux, assuming that you're in the unzipped `pharo4.0` folder:
 
 
 #####3\.1\.2\. Mac OS X command line
-<a name="Mac OS X command line"></a>
+
 For Mac OS X, assuming that you're in the directory with the unzipped
 `Pharo4.0.app` bundle:
 
@@ -135,7 +135,7 @@ right\-click on `Pharo4.0.app` and select 'Show Package Contents'\.
 
 
 #####3\.1\.3\. Windows command line
-<a name="Windows command line"></a>
+
 For Windows, assuming that you're in the unzipped `Pharo4.0` folder:
 
 
@@ -149,7 +149,7 @@ Pharo.exe Pharo4.0.image
 
 
 ###4\. The World Menu
-<a name="The World Menu"></a>
+
 Once Pharo is running, you should see a single large window, possibly containing
 some open workspace windows \(see Figure [4\.1](#worldMenu)\)\. You might notice a menu
 bar, but Pharo mainly makes use of context\-dependent pop\-up menus\.
@@ -165,6 +165,6 @@ and the workspace\.
 
 
 ###5\. Install Kendrick
-<a name="Install Kendrick"></a>From the the World Menu, select the "Tools" and after that the Configuration Browser\.
+From the the World Menu, select the "Tools" and after that the Configuration Browser\.
 Find in the Configuration Browser, the Kendrick configuration and select it\. Click on "Install Stable version"\.
 You need to be connected to the Internet, in order to download the Kendrick package\.

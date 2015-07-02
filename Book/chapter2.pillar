@@ -91,7 +91,7 @@ There is at least one infected in order to start the process.
 	model
 		addTransitionFrom: '{#status: #S}'
 		to: '{#status: #I}'
-		probability: [ :m | (m atParameter: #beta) * (m atCompartment: '{#status: #I}') ].
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
 	model addTransitionFrom: '{#status: #I}' to: '{#status: #R}' probability: [ :m | m atParameter: #gamma ].
 ]]]
 
@@ -150,6 +150,32 @@ builder open.
 
 ]]]
 
+!!!Kendrick code
+
+Comparing to the previous model, in this model, it should add four other transitions. The first one represents the births of susceptible.
+The three others represent the deaths of each compartment.
+We use the ODE syntax to specify this model.
+
+[[[language=smalltalk
+| model |
+	model := KEModel new.
+	model population attributes: '{#status: [#S, #I, #R]}'.
+  model
+		buildFromCompartments:
+			'{
+		{ #status: #S }: 4975,
+		{ #status: #I }: 25,
+		{ #status: #R }: 0
+	}'.
+	model addParameter: #beta value: 1 / 5000.
+	model addParameter: #gamma value: 1 / 10.0.
+	model addParameter: #mu value: 5e-4.
+	model addParameter: #N value: #sizeOfPopulation.
+	model addEquation: 'S:t=mu*N-beta*S*I-mu*S' parseAsAnEquation.
+	model addEquation: 'I:t=beta*S*I-gamma*I-mu*I' parseAsAnEquation.
+	model addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
+]]]
+
 !! SIR model with disease induced mortality and density dependent transmission
 !!! Equations
 {{{latex:
@@ -191,4 +217,76 @@ builder open.
 }}}
 
 !! SEIR model with births and deaths
+We introduce here a SEIR model. The E status means that a susceptible becomes infected but not yet infectious.
+!!!Equations
+{{{latex:
+  \begin{equation}
+    \frac{dS}{dt} = \nu*N - \beta*S*I - \mu*S
+  \end{equation}
+  \begin{equation}
+    \frac{dE}{dt} = \beta*S*I - \sigma*E - \mu*E
+  \end{equation}
+  \begin{equation}
+    \frac{dI}{dt} = \sigma*E - \gamma*I - \mu*I
+  \end{equation}
+  \begin{equation}
+    \frac{dR}{dt} = \gamma*I - \mu*R
+  \end{equation}
+  }}}
+
+!!!Kendrick code
+Here, we use the parameters of measles model. The time unit is day.
+
+[[[language=smalltalk
+  | model |
+	model := KEModel new.
+  model population attributes: '{#status: [#S, #E, #I, #R]}'.
+	model
+		buildFromCompartments:
+			'{
+		{#status: #S}: 99999,
+		{#status: #I}: 1,
+		{#status: #E}: 0,
+		{#status: #R}: 0
+	}'.
+	model addParameters: '{
+    #beta: 0.0000214,
+    #gamma: 0.143,
+    #mu: 0.0000351,
+    #sigma: 0.125,
+    #N: #sizeOfPopulation}'.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #E}'
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
+	model
+    addTransitionFrom: '{#status: #E}'
+    to: '{#status: #I}'
+    probability: [ :m | m atParameter: #sigma ].
+	model
+    addTransitionFrom: '{#status: #I}'
+    to: '{#status: #R}'
+    probability: [ :m | m atParameter: #gamma ].
+	model
+    addTransitionFrom: '{#status: #S}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #I}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #R}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #E}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: #empty
+    to: '{#status: #S}'
+    probability: [ :m | m atParameter: #mu ].
+]]]
+
 !! SIR with a carrier state

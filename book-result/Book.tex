@@ -43,14 +43,17 @@
 \sloppy % To avoid LaTeX's annoying habit of letting lines stick over the margins!
 \mainmatter
 
-\chapter{ Introduction}\label{ Introduction}
+\chapter{ Introduction}
+Understanding how infectious diseases propagate is a key challenge for the 21st century. Mathematical modelling is a powerful method for studying complex systems that is commonly used in many scientific disciplines. It is widely used to carry out researches on modelling infectious diseases in order to study the mechanisms of transmission, explore characteristics of epidemics, predict the future course of an outbreak and evaluate strategies to find a best control-program. The first mathematical model of epidemiology was proposed by Daniel Bernoulli in 1766 to defend the practice of inoculation against smallpox. The major contribution to modern mathematical epidemiology was carried out by Kermack and McKendrick who had formulated a compartmental model based on relatively simple assumptions on the rates of flow between different classes categorised by epidemiological status.
+
+Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language. This book shows how to visualize
+the spatio-temporal evolution of epidemiological models using Roassal.
+
 Some examples from this book are coming from the book of M. Keeling \& P. Rohani \href{http://press.princeton.edu/titles/8459.html}{\symbol{34}Modeling Infectious Diseases in Humans and Animals\symbol{34}}.
 There is a website with on-line material for the book, where you can find the programs and the background of each program in C++, FORTRAN and Matlab.
 
-Kendrick is a domain-specific modelling language that provide tools in order to design, explore and visualize your epidemics models. Kendrick is an embedded DSL and use the Pharo programming language as its host language.
-
 In order to use Kendrick, you need first to install the last version of Pharo in your computer.
-\section{How to install Pharo}\label{How to install Pharo}
+\section{How to install Pharo}
 Pharo is available as a free download from
 \url{http://pharo.org/download}. Click the button for your
 operating system to download the appropriate \ct{.zip} file. For example, the
@@ -59,7 +62,7 @@ full Pharo 4.0 distribution for Mac OS X will be available at
 
 Once that file is unzipped, it will contain everything you need to run
 Pharo (this includes the VM, the image, and the sources, as explained below).
-\section{Pharo components}\label{Pharo components}
+\section{Pharo components}
 Like many Smalltalk-derived systems, Pharo currently consists of three main
 components. Although you do not need to deal with them directly for the purposes
 of this book, it is important to understand the roles that they play.
@@ -93,7 +96,7 @@ different users. All of these files can be placed in the same directory, but it
 is also possible to put the Virtual Machine and sources file in separate
 directory where everyone has access to them. Do whatever works best for your
 style of working and your operating system.
-\section{Launching Pharo}\label{Launching Pharo}
+\section{Launching Pharo}
 To start Pharo, double click on the Pharo executable (or, for more advanced
 users, drag and drop the \ct{.image} file onto the VM, or use the command line).
 
@@ -113,7 +116,7 @@ machine, the operating system may no longer be able to guess the right one. In t
 case, it is safer to specify exactly which ones you meant to launch, either
 by dragging and dropping the image file onto the VM, or specifying the image on
 the command line (see the next section).
-\subsection{Launching Pharo via the command line}\label{Launching Pharo via the command line}
+\subsection{Launching Pharo via the command line}
 The general pattern for launching Pharo from a terminal is:
 
 
@@ -121,7 +124,7 @@ The general pattern for launching Pharo from a terminal is:
 <Pharo executable> <path to Pharo image>
 \end{code}
 
-\subsubsection{Linux command line}\label{Linux command line}
+\subsubsection{Linux command line}
 For Linux, assuming that you're in the unzipped \ct{pharo4.0} folder:
 
 
@@ -129,7 +132,7 @@ For Linux, assuming that you're in the unzipped \ct{pharo4.0} folder:
 ./pharo shared/Pharo4.0.image
 \end{code}
 
-\subsubsection{Mac OS X command line}\label{Mac OS X command line}
+\subsubsection{Mac OS X command line}
 For Mac OS X, assuming that you're in the directory with the unzipped
 \ct{Pharo4.0.app} bundle:
 
@@ -141,7 +144,7 @@ Pharo4.0.app/Contents/MacOS/Pharo Pharo4.0.app/Contents/Resources/Pharo4.0.image
 
 Incidentally, to drag-and-drop images on Mac OS in Finder, you need to
 right-click on \ct{Pharo4.0.app} and select 'Show Package Contents'.
-\subsubsection{Windows command line}\label{Windows command line}
+\subsubsection{Windows command line}
 For Windows, assuming that you're in the unzipped \ct{Pharo4.0} folder:
 
 
@@ -149,7 +152,7 @@ For Windows, assuming that you're in the unzipped \ct{Pharo4.0} folder:
 Pharo.exe Pharo4.0.image
 \end{code}
 
-\section{The World Menu}\label{The World Menu}
+\section{The World Menu}
 Once Pharo is running, you should see a single large window, possibly containing
 some open workspace windows (see Figure \ref{worldMenu}). You might notice a menu
 bar, but Pharo mainly makes use of context-dependent pop-up menus.
@@ -167,13 +170,33 @@ World Menu. World Menu contains many of the Pharo tools, utilities and settings.
 
 You will see a list of several core tools in Pharo, including the class browser
 and the workspace.
-\section{Install Kendrick}\label{Install Kendrick}
+\section{Install Kendrick}
 From the the World Menu, select the \symbol{34}Tools\symbol{34} and after that the Configuration Browser.
 Find in the Configuration Browser, the Kendrick configuration and select it. Click on \symbol{34}Install Stable version\symbol{34}.
 You need to be connected to the Internet, in order to download the Kendrick package.
-\chapter{ Introduction to Simple Epidemic Model}\label{ Introduction to Simple Epidemic Model}\section{ Simple SIR (without births and deaths)}\label{ Simple SIR (without births and deaths)}
+\chapter{ Introduction to Simple Epidemic Model}
+The targeted model of the \textbf{Kendrick} language is compartmental model such as the SIR, SEIR model ... in which the individuals are first considered as \textit{Susceptible} to pathogen (status S), then can be infected, assumed \textit{Infectious} (status I) that can spread the infection and \textit{Recovery} (status R) who are immunised and cannot become infected again. The transition of status between compartments is represented mathematically as derivatives of compartment size with respect to time.
+
+At the moment, \textbf{Kendrick} supports for the mathematical models of epidemiology based on ordinary differential equations (\textbf{ODEs}). The system of ODEs followed represents the SIR classic model of epidemiology:
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=0.35\textwidth]{figures/equation1.png}\caption{Mathematical description of SIR model using ODEs.\label{equation1}}\end{center}
+\end{figure}
+
+
+These models are specified using the Kendrick language and modeled using the simulation module integrated into the platform.
+The simulator takes the Kendrick model (the epidemiological model written in Kendrick language) and performs a simulation algorithm and give out the result showing the spatial and temporal evolution dynamics of each compartment. This visualization is done by using Roassal.
+
+The simulation module supports three modeling formalisms: deterministic, stochastic and individual-based (also called agent-based).
+The modelers can switch between the simulation modes by indicating the algorithm used. At the moment, we use the RK4 method for deterministically resolving ODEs.
+The stochastic simulation converts the ODEs of the model to events and using Gillespie's algorithms to generate stochastic model.
+The individual-based simulator allows to reach the model at more detailed level.
+\section{ Simple SIR (without births and deaths)}
 Program 2.1 is a simple SIR model (page 19 of the book). These are the equations and the code of the model:
-\subsection{ Equations}\label{ Equations}
+\subsection{ Equations}
 
 \begin{equation}
 \frac{dS}{dt} = -\beta*S*I
@@ -184,7 +207,7 @@ Program 2.1 is a simple SIR model (page 19 of the book). These are the equations
 \begin{equation}
 \frac{dR}{dt} = \gamma*I
 \end{equation}
-\subsection{ Pharo code}\label{ Pharo code}
+\subsection{ Pharo code}
 % syntax highlighting = smalltalk
 
 \begin{code}{}
@@ -223,7 +246,34 @@ builder compositeDiagram
 builder open.
 \end{code}
 
-\section{ SIR model with births and deaths}\label{ SIR model with births and deaths}\subsection{ Equations}\label{ Equations}
+\subsection{ Kendrick code}
+We use now the Kendrick DSL to express the SIR model.
+We start to create an instance of KEModel and then enumerate the compartment names with their initial value.
+In this model, we have 3 compartments S, I and R.
+There is at least one infected in order to start the process.
+2 transitions are added to the model, one from S to I and another one from I to R.
+
+% syntax highlighting = smalltalk
+
+\begin{code}{}
+| model |
+	model := KEModel new.
+	model
+		buildFromCompartments:
+			'{
+		{ #status: #S }: 99999,
+		{ #status: #I }: 1,
+		{ #status: #R }: 0
+	}'.
+	model addParameters: '{#beta: 0.0052, #gamma: 52}'.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #I}'
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
+	model addTransitionFrom: '{#status: #I}' to: '{#status: #R}' probability: [ :m | m atParameter: #gamma ].
+\end{code}
+
+\section{ SIR model with births and deaths}\subsection{ Equations}
 
 \begin{equation}
 \frac{dS}{dt} = \mu-\beta*S*I-\mu*S
@@ -234,7 +284,7 @@ builder open.
 \begin{equation}
 \frac{dR}{dt} = \gamma*I-\mu*R
 \end{equation}
-\subsection{ Pharo code}\label{ Pharo code}
+\subsection{ Pharo code}
 % syntax highlighting = smalltalk
 
 \begin{code}{}
@@ -275,7 +325,34 @@ builder compositeDiagram
 builder open.
 \end{code}
 
-\section{ SIR model with disease induced mortality and density dependent transmission}\label{ SIR model with disease induced mortality and density dependent transmission}\subsection{ Equations}\label{ Equations}
+\subsection{Kendrick code}
+Comparing to the previous model, in this model, it should add four other transitions. The first one represents the births of susceptible.
+The three others represent the deaths of each compartment.
+We use the ODE syntax to specify this model.
+
+% syntax highlighting = smalltalk
+
+\begin{code}{}
+| model |
+	model := KEModel new.
+	model population attributes: '{#status: [#S, #I, #R]}'.
+  model
+		buildFromCompartments:
+			'{
+		{ #status: #S }: 4975,
+		{ #status: #I }: 25,
+		{ #status: #R }: 0
+	}'.
+	model addParameter: #beta value: 1 / 5000.
+	model addParameter: #gamma value: 1 / 10.0.
+	model addParameter: #mu value: 5e-4.
+	model addParameter: #N value: #sizeOfPopulation.
+	model addEquation: 'S:t=mu*N-beta*S*I-mu*S' parseAsAnEquation.
+	model addEquation: 'I:t=beta*S*I-gamma*I-mu*I' parseAsAnEquation.
+	model addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
+\end{code}
+
+\section{ SIR model with disease induced mortality and density dependent transmission}\subsection{ Equations}
 
 \begin{equation}
 \frac{dX}{dt} = \nu-\beta*X*Y-\mu*X
@@ -286,7 +363,7 @@ builder open.
 \begin{equation}
 \frac{dZ}{dt} = \gamma*Y-\mu*Z
 \end{equation}
-\section{ SIR model, disease induced mortality and frequency dependent transmission}\label{ SIR model, disease induced mortality and frequency dependent transmission}\subsection{ Equations}\label{ Equations}
+\section{ SIR model, disease induced mortality and frequency dependent transmission}\subsection{ Equations}
 
 \begin{equation}
 \frac{dX}{dt} = \nu-\beta*X*Y/N-\mu*X
@@ -297,7 +374,7 @@ builder open.
 \begin{equation}
 \frac{dZ}{dt} = \gamma*Y-\mu*Z
 \end{equation}
-\subsection{ Pharo code}\label{ Pharo code}\section{ SIS model without births or deaths}\label{ SIS model without births or deaths}\subsection{Equations}\label{Equations}
+\subsection{ Pharo code}\section{ SIS model without births or deaths}\subsection{Equations}
 
 \begin{equation}
 \frac{dS}{dt} = \gamma*I-\beta*S*I
@@ -305,7 +382,81 @@ builder open.
 \begin{equation}
 \frac{dI}{dt} = \beta*S*I-\gamma*I
 \end{equation}
-\section{ SEIR model with births and deaths}\label{ SEIR model with births and deaths}\section{ SIR with a carrier state}\label{ SIR with a carrier state}\chapter{ Host Heterogeneities}\label{ Host Heterogeneities}\chapter{ Multi-Pathogen$/$Multi-Host Models}\label{ Multi-Pathogen/Multi-Host Models}
+\section{ SEIR model with births and deaths}
+We introduce here a SEIR model. The E status means that a susceptible becomes infected but not yet infectious.
+\subsection{Equations}
+
+  \begin{equation}
+    \frac{dS}{dt} = \nu*N - \beta*S*I - \mu*S
+  \end{equation}
+  \begin{equation}
+    \frac{dE}{dt} = \beta*S*I - \sigma*E - \mu*E
+  \end{equation}
+  \begin{equation}
+    \frac{dI}{dt} = \sigma*E - \gamma*I - \mu*I
+  \end{equation}
+  \begin{equation}
+    \frac{dR}{dt} = \gamma*I - \mu*R
+  \end{equation}
+  
+\subsection{Kendrick code}
+Here, we use the parameters of measles model. The time unit is day.
+
+% syntax highlighting = smalltalk
+
+\begin{code}{}
+  | model |
+	model := KEModel new.
+  model population attributes: '{#status: [#S, #E, #I, #R]}'.
+	model
+		buildFromCompartments:
+			'{
+		{#status: #S}: 99999,
+		{#status: #I}: 1,
+		{#status: #E}: 0,
+		{#status: #R}: 0
+	}'.
+	model addParameters: '{
+    #beta: 0.0000214,
+    #gamma: 0.143,
+    #mu: 0.0000351,
+    #sigma: 0.125,
+    #N: #sizeOfPopulation}'.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #E}'
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
+	model
+    addTransitionFrom: '{#status: #E}'
+    to: '{#status: #I}'
+    probability: [ :m | m atParameter: #sigma ].
+	model
+    addTransitionFrom: '{#status: #I}'
+    to: '{#status: #R}'
+    probability: [ :m | m atParameter: #gamma ].
+	model
+    addTransitionFrom: '{#status: #S}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #I}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #R}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: '{#status: #E}'
+    to: #empty
+    probability: [ :m | m atParameter: #mu ].
+	model
+    addTransitionFrom: #empty
+    to: '{#status: #S}'
+    probability: [ :m | m atParameter: #mu ].
+\end{code}
+
+\section{ SIR with a carrier state}\chapter{ Host Heterogeneities}\chapter{ Multi-Pathogen$/$Multi-Host Models}
 
 % another try
 % \printglossary
