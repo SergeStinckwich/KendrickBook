@@ -235,7 +235,7 @@ Here, we use the parameters of measles model\. The time unit is day\.
 ```smalltalk
 | model |
 	model := KEModel new.
-  model population attributes: '{#status: [#S, #E, #I, #R]}'.
+	model population attributes: '{#status: [#S, #E, #I, #R]}'.
 	model
 		buildFromCompartments:
 			'{
@@ -245,47 +245,298 @@ Here, we use the parameters of measles model\. The time unit is day\.
 		{#status: #R}: 0
 	}'.
 	model addParameters: '{
-    #beta: 0.0000214,
-    #gamma: 0.143,
-    #mu: 0.0000351,
-    #sigma: 0.125,
-    #N: #sizeOfPopulation}'.
+		#beta: 0.0000214,
+		#gamma: 0.143,
+		#mu: 0.0000351,
+		#sigma: 0.125,
+		#N: #sizeOfPopulation}'.
 	model
 		addTransitionFrom: '{#status: #S}'
 		to: '{#status: #E}'
 		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
 	model
-    addTransitionFrom: '{#status: #E}'
-    to: '{#status: #I}'
-    probability: [ :m | m atParameter: #sigma ].
+		addTransitionFrom: '{#status: #E}'
+		to: '{#status: #I}'
+		probability: [ :m | m atParameter: #sigma ].
 	model
-    addTransitionFrom: '{#status: #I}'
-    to: '{#status: #R}'
-    probability: [ :m | m atParameter: #gamma ].
+		addTransitionFrom: '{#status: #I}'
+		to: '{#status: #R}'
+		probability: [ :m | m atParameter: #gamma ].
 	model
-    addTransitionFrom: '{#status: #S}'
-    to: #empty
-    probability: [ :m | m atParameter: #mu ].
+		addTransitionFrom: '{#status: #S}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
 	model
-    addTransitionFrom: '{#status: #I}'
-    to: #empty
-    probability: [ :m | m atParameter: #mu ].
+		addTransitionFrom: '{#status: #I}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
 	model
-    addTransitionFrom: '{#status: #R}'
-    to: #empty
-    probability: [ :m | m atParameter: #mu ].
+		addTransitionFrom: '{#status: #R}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
 	model
-    addTransitionFrom: '{#status: #E}'
-    to: #empty
-    probability: [ :m | m atParameter: #mu ].
+		addTransitionFrom: '{#status: #E}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
 	model
-    addTransitionFrom: #empty
-    to: '{#status: #S}'
-    probability: [ :m | m atParameter: #mu ].
+		addTransitionFrom: #empty
+		to: '{#status: #S}'
+		probability: [ :m | m atParameter: #mu ].
 ```
 
 
 
 
 
-###7\.  SIR with a carrier state
+###7\.  SEIR model with vaccination at births
+
+
+
+####7\.1\.  Equations
+
+
+
+
+####7\.2\.  Kendrick code
+
+
+
+```smalltalk
+| model |
+	model := KEModel new.
+	model population attributes: '{#status: [#S, #E, #I, #R]}'.
+	model
+		buildFromCompartments:
+			'{
+		{#status: #S}: 99999,
+		{#status: #I}: 1,
+		{#status: #E}: 0,
+		{#status: #R}: 0
+	}'.
+	model addParameters: '{
+		#beta: 0.00782,
+		#gamma: 52.14,
+		#mu: 0.0128,
+		#sigma: 45.625,
+		#N: #sizeOfPopulation,
+		#p: 0.0}'.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #E}'
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status:#I}') ].
+	model
+		addTransitionFrom: '{#status: #E}'
+		to: '{#status: #I}'
+		probability: [ :m | m atParameter: #sigma ].
+	model
+		addTransitionFrom: '{#status: #I}'
+		to: '{#status: #R}'
+		probability: [ :m | m atParameter: #gamma ].
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: '{#status: #I}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: '{#status: #R}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: '{#status: #E}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: #empty
+		to: '{#status: #S}'
+		probability: [ :m | (m atParameter: #mu) * (1 - (m atParameter: #p)) ].
+	model
+		addTransitionFrom: #empty
+		to: '{#status: #R}'
+		probability: [ :m | (m atParameter: #mu) * (m atParameter: #p) ].
+```
+
+
+
+
+
+###8\.  SEIR model with seasonal forcing
+
+The parameters of Kendrick model is not only a constant but also a temporal function as in this model\.
+
+
+
+####8\.1\.  Equations
+
+
+
+
+####8\.2\.  Kendrick code
+
+
+
+```smalltalk
+| model |
+	model := KEModel new.
+	model population attributes: '{ #status: [#S, #E, #I, #R] }'.
+	model
+		buildFromCompartments:
+			'{
+		{ #status: #S }: 99999,
+		{ #status: #E }: 0,
+		{ #status: #I }: 1,
+		{ #status: #R }: 0
+	}'.
+	model addParameters: '{
+		#beta0: 0.0052,
+		#gamma: 52,
+		#sigma: 52,
+		#betaAmp: 0.3,
+		#N: #sizeOfPopulation,
+		#mu: 0.0125}'.
+	model
+		addParameter: #beta
+		value: 'beta0*(1 + (betaAmp*cos(t)))' parseAsAnExpression.
+	model
+		addEquation: 'S:t=mu*N-beta*S*I-mu*S' parseAsAnEquation.
+	model
+		addEquation: 'E:t=beta*S*I-sigma*E-mu*E' parseAsAnEquation.
+	model
+		addEquation: 'I:t=sigma*E-gamma*I-mu*I' parseAsAnEquation.
+	model
+		addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
+```
+
+
+
+
+
+###9\.  SIR with a carrier state
+
+
+
+###10\.  SIR model with three species of hosts
+
+In the standard models of epidemiology, the population is compartmentalized by only clinic status\.
+As such, the population has only one degree of subdivision\.
+In a context of multi\-host \(multi\-species\) model, the host population has two degrees of subdivision due to the attribute species of each individual\.
+
+
+
+####10\.1\.  Equations
+
+
+
+
+####10\.2\.  Configurations of Kendrick model
+
+In epidemiology, it is important to distinguish between two basic assumptions in terms of the underlying structure of contacts within the population\.
+Either the model is assumed to be mass action or pseudo mass action\.
+The first kind reflects the situation where the number of contacts is independent of the population size\.
+So that the force of infection \.
+In some circumstances, the transmission rate  is rescaled by \.
+The second one assumes that as the population size increases, so does the contact rate\.
+As such the force of infection \.
+
+At the moment, Kendrick model includes three parameters of configuration: sizeOfPopulation, rescale, mass\_action\.
+By default:
+
+
+
+```smalltalk
+#sizeOfPopulation->#population
+#rescale->true
+#mass_action->true
+```
+
+
+
+In the context of the multi\-species model, it is important to config the size of population for each species\.
+As such:
+
+
+
+```smalltalk
+model configurations: {#sizeOfPopulation->#(#species)}
+```
+
+
+
+
+
+####10\.3\.  Kendrick model
+
+In this model, we define the parameter  for three scopes corresponding to each species\.
+In order to represent the interaction between three species, we define a contact network\.
+Due to this network, the force of infection will be modified as:
+
+where  denotes the strength of connection between species  and \.
+
+
+
+```smalltalk
+| model graph |
+	model := KEModel new.
+	model
+		population:
+			(KEMetaPopulation new
+				attributes:
+					{(#status -> #(#S #I #R)).
+					(#species -> #(#mosquito #reservoir1 #reservoir2))}).
+	model
+		buildFromAttributes: #(#status #species)
+		compartments:
+			{(#(#S #mosquito) -> 9800).
+			(#(#I #mosquito) -> 200).
+			(#(#R #mosquito) -> 0).
+			(#(#S #reservoir1) -> 1000).
+			(#(#I #reservoir1) -> 0).
+			(#(#R #reservoir1) -> 0).
+			(#(#S #reservoir2) -> 2000).
+			(#(#I #reservoir2) -> 0).
+			(#(#R #reservoir2) -> 0)}.
+	model addParameter: #mu
+		   inScopes: {
+				#species->#mosquito.
+				#species->#reservoir1.
+				#species->#reservoir2}
+		   values: #(12.17 0.05 0.05).
+	model addParameter: #gamma value: 52.
+	model addParameter: #beta value: 1.
+	model addParameter: #N value: #sizeOfPopulation.
+	model configurations: { #sizeOfPopulation->#(#species) }.
+
+	graph := KEContactNetwork
+			newOn: model population
+			atAttribute: #species.
+	graph edges: { #mosquito->#reservoir1. #mosquito->#reservoir2 };
+			strengthOfAllConnections: 0.02.
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: '{#status: #I}'
+		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status: #I}') ].
+	model
+		addTransitionFrom: '{#status: #I}'
+		to: '{#status: #R}'
+		probability: [ :m | m atParameter: #gamma ].
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: '{#status: #I}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: '{#status: #R}'
+		to: #empty
+		probability: [ :m | m atParameter: #mu ].
+	model
+		addTransitionFrom: #empty
+		to: '{#status: #S}'
+		probability: [ :m | m atParameter: #mu ].
+```
+
+
