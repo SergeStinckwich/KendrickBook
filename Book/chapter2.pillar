@@ -290,6 +290,8 @@ Here, we use the parameters of measles model. The time unit is day.
 		probability: [ :m | m atParameter: #mu ].
 ]]]
 
++Deterministic dynamics of the measles model using Kendrick language>file://figures/SEIR_RK4.png|label=SEIR_RK4+
+
 !! SEIR model with vaccination at births
 
 !!! Equations
@@ -328,7 +330,7 @@ Here, we use the parameters of measles model. The time unit is day.
 		#mu: 0.0128,
 		#sigma: 45.625,
 		#N: #sizeOfPopulation,
-		#p: 0.0}'.
+		#p: 0.7}'.
 	model
 		addTransitionFrom: '{#status: #S}'
 		to: '{#status: #E}'
@@ -367,9 +369,18 @@ Here, we use the parameters of measles model. The time unit is day.
 		probability: [ :m | (m atParameter: #mu) * (m atParameter: #p) ].
 ]]]
 
-!! SEIR model with seasonal forcing
+Here we take the vaccination rate {{{latex: $p=0.7$}}}. In order to study the vaccination effect, we change the value of {{{latex: $p$}}} and compare the two case as in Figure *SEIR_vacc_RK4_2*.
+After running a simulation on the first model (with p = 0.7), we reset the model with the command:
+[[[language=smalltalk
+model resetCompartments
+]]]
+The script to show this comparison can be found in the Examples package of Kendrick. The parameters of Kendrick model is not only a constant but also a temporal function as in this model. The Y-axis is loged for readibilty.
 
-The parameters of Kendrick model is not only a constant but also a temporal function as in this model.
++Deterministic dynamics of measles model with vaccination at birth (p=0.7)>file://figures/SEIR_vacc_RK4.png|SEIR_vacc_RK4+
+
++Comparison two models with different values of p>file://figures/SEIR_vacc_RK4_2.png|label=SEIR_vacc_RK4_2+
+
+!! SEIR model with seasonal forcing
 
 !!! Equations
 {{{latex:
@@ -420,3 +431,5 @@ The parameters of Kendrick model is not only a constant but also a temporal func
 	model
 		addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
 ]]]
+
++Deterministic dynamics of SEIR model with seasonal forcing>file://figures/SEIR_force.png|label=SEIR_force+

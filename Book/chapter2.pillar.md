@@ -301,6 +301,8 @@ Here, we use the parameters of measles model\. The time unit is day\.
 
 
 
+<a name="SEIR_RK4"></a>![SEIR_RK4](figures/SEIR_RK4.png "Deterministic dynamics of the measles model using Kendrick language")
+
 
 
 ###4\.  SEIR model with vaccination at births
@@ -334,7 +336,7 @@ Here, we use the parameters of measles model\. The time unit is day\.
 		#mu: 0.0128,
 		#sigma: 45.625,
 		#N: #sizeOfPopulation,
-		#p: 0.0}'.
+		#p: 0.7}'.
 	model
 		addTransitionFrom: '{#status: #S}'
 		to: '{#status: #E}'
@@ -375,11 +377,24 @@ Here, we use the parameters of measles model\. The time unit is day\.
 
 
 
+Here we take the vaccination rate \. In order to study the vaccination effect, we change the value of  and compare the two case as in Figure [4\.1](#SEIR_vacc_RK4_2)\.
+After running a simulation on the first model \(with p = 0\.7\), we reset the model with the command:
+
+
+```smalltalk
+model resetCompartments
+```
+
+
+The script to show this comparison can be found in the Examples package of Kendrick\. The parameters of Kendrick model is not only a constant but also a temporal function as in this model\. The Y\-axis is loged for readibilty\.
+
+<a name=""></a>![](figures/SEIR_vacc_RK4.png "Deterministic dynamics of measles model with vaccination at birth (p=0.7)")
+
+<a name="SEIR_vacc_RK4_2"></a>![SEIR_vacc_RK4_2](figures/SEIR_vacc_RK4_2.png "Comparison two models with different values of p")
+
 
 
 ###5\.  SEIR model with seasonal forcing
-
-The parameters of Kendrick model is not only a constant but also a temporal function as in this model\.
 
 
 
@@ -425,3 +440,5 @@ The parameters of Kendrick model is not only a constant but also a temporal func
 ```
 
 
+
+<a name="SEIR_force"></a>![SEIR_force](figures/SEIR_force.png "Deterministic dynamics of SEIR model with seasonal forcing")

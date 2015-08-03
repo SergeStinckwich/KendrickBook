@@ -617,6 +617,14 @@ Here, we use the parameters of measles model. The time unit is day.
 		probability: [ :m | m atParameter: #mu ].
 \end{code}
 
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SEIR_RK4.png}\caption{Deterministic dynamics of the measles model using Kendrick language.\label{SEIR_RK4}}\end{center}
+\end{figure}
+
 \section{ SEIR model with vaccination at births}\subsection{ Equations}
 
   \begin{equation}
@@ -653,7 +661,7 @@ Here, we use the parameters of measles model. The time unit is day.
 		#mu: 0.0128,
 		#sigma: 45.625,
 		#N: #sizeOfPopulation,
-		#p: 0.0}'.
+		#p: 0.7}'.
 	model
 		addTransitionFrom: '{#status: #S}'
 		to: '{#status: #E}'
@@ -692,9 +700,33 @@ Here, we use the parameters of measles model. The time unit is day.
 		probability: [ :m | (m atParameter: #mu) * (m atParameter: #p) ].
 \end{code}
 
-\section{ SEIR model with seasonal forcing}
-The parameters of Kendrick model is not only a constant but also a temporal function as in this model.
-\subsection{ Equations}
+
+Here we take the vaccination rate  $p=0.7$. In order to study the vaccination effect, we change the value of  $p$ and compare the two case as in Figure \ref{SEIR_vacc_RK4_2}.
+After running a simulation on the first model (with p = 0.7), we reset the model with the command:
+% syntax highlighting = smalltalk
+
+\begin{code}{}
+model resetCompartments
+\end{code}
+
+The script to show this comparison can be found in the Examples package of Kendrick. The parameters of Kendrick model is not only a constant but also a temporal function as in this model. The Y-axis is loged for readibilty.
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SEIR_vacc_RK4.png}\caption{Deterministic dynamics of measles model with vaccination at birth (p=0.7).\label{figures/SEIR_vacc_RK4.png}}\end{center}
+\end{figure}
+
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SEIR_vacc_RK4_2.png}\caption{Comparison two models with different values of p.\label{SEIR_vacc_RK4_2}}\end{center}
+\end{figure}
+
+\section{ SEIR model with seasonal forcing}\subsection{ Equations}
 
   \begin{equation}
     \frac{dS}{dt} = \mu*N - \beta_0*(1+\beta_{amp}*cos(t))*S*I - \mu*S
@@ -743,6 +775,14 @@ The parameters of Kendrick model is not only a constant but also a temporal func
 	model
 		addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
 \end{code}
+
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SEIR_force.png}\caption{Deterministic dynamics of SEIR model with seasonal forcing.\label{SEIR_force}}\end{center}
+\end{figure}
 
 \chapter{ Heterogeneous Host Models}\section{ SIS model with multiple risk groups}
 We consider here the the SIS model in which the population is structured into multiple risk groups (host-heterogeneous model) labelled 1, 2, ...
