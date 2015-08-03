@@ -17,7 +17,7 @@ The individual-based simulator allows to reach the model at more detailed level.
 
 !! Simple SIR (without births and deaths)
 
-Program 2.1 is a simple SIR model (page 19 of the book). These are the equations and the code of the model:
+Program 2.1 is a simple SIR model. These are the equations and the code of the model:
 
 !!! Equations
 {{{latex:
@@ -33,12 +33,13 @@ Program 2.1 is a simple SIR model (page 19 of the book). These are the equations
 }}}
 
 !!! Pharo code
+Here, we just demonstrate the code written in Smalltalk language to resolve the system of equations and view the results.
 [[[language=smalltalk
-|solver system dt beta gamma values stepper diag colors maxTime|
-dt := 1.0.
-beta := 1.4247.
-gamma := 0.14286.
-maxTime := 70.0.
+|solver system dt beta gamma values stepper diag colors maxTime st legend|
+dt := 0.001.
+beta := 0.0052.
+gamma := 52.
+maxTime := 1.
 system := ExplicitSystem block: [ :x :t| |c|
      c := Array new: 3.
      c at: 1 put: (beta negated) * (x at: 1) * (x at: 2).
@@ -48,38 +49,51 @@ system := ExplicitSystem block: [ :x :t| |c|
      ].
 stepper := RungeKuttaStepper onSystem: system.
 solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
-state := { 1-1e-6. 1e-6. 0}.
-values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
-                                                          time: t stepSize: dt ].
-diag := OrderedCollection new.
+st := { 99999. 1. 0}.
+values := (0.0 to: maxTime by: dt) collect: [ :t| st := stepper doStep: st time: t stepSize: dt ].
+
+diag := RTGrapher new.
+diag extent: 400 @ 200.
+
 colors := Array with: Color blue with: Color red with: Color green.
 1 to: 3 do: [ :i|
-    diag add:
-        ((GETLineDiagram new)
-            models: (1 to: maxTime+1 by: 1);
-            y: [ :x| (values at: x) at: i ];
-            color: (colors at: i))
-     ].
-builder := (GETDiagramBuilder new).
-builder compositeDiagram
-    xAxisLabel: 'Time in days';
-    yAxisLabel: 'Number of Individuals';
-    regularAxis;
-    diagrams: diag.
-builder open.
+	|ds|
+	ds := RTDataSet new.
+	ds points: (1.0 to: ((maxTime/dt)+1) by: 1).
+	ds y: [ :x| (values at: x) at: i ].
+	ds x: [ :t| (t - 1)*dt].
+	ds noDot.
+	ds connectColor: (colors at: i).
+	diag add: ds ].
+diag axisX title: 'Time (year)'.
+diag axisY title: 'Number of individuals'.
+diag axisY noDecimal.
+legend := RTLegendBuilder new.
+legend view: diag view.
+legend addText: 'Compartments'.
+legend addColor: (colors at: 1) text: '#status: #S'.
+legend addColor: (colors at: 2) text: '#status: #I'.
+legend addColor: (colors at: 3) text: '#status: #R'.
+legend build.
+diag build.
+diag view @ RTZoomableView.
+^ diag view
 ]]]
-
+Executing this script we obtain the results of the system of equations as in Figure *SIR_RK4_pharo*
++Deterministic dynamics of the SIR model using Smalltalk>file://figures/SIR_RK4_pharo.png|label=SIR_RK4_pharo+
 !!! Kendrick code
 
 We use now the Kendrick DSL to express the SIR model.
 We start to create an instance of KEModel and then enumerate the compartment names with their initial value.
-In this model, we have 3 compartments S, I and R.
+In this model, we have 3 compartments S, I and R. The population has one attribute ''status''.
 There is at least one infected in order to start the process.
-2 transitions are added to the model, one from S to I and another one from I to R.
+Two transitions are added to the model, one from S to I and another one from I to R.
+The parameters of the model {{{latex: $\beta = 0.0052$ and $\gamma=52$}}}.
 
 [[[language=smalltalk
 | model |
 	model := KEModel new.
+  model population attributes: '{ #status: [#S, #I, #R] }'.
 	model
 		buildFromCompartments:
 			'{
@@ -95,6 +109,9 @@ There is at least one infected in order to start the process.
 	model addTransitionFrom: '{#status: #I}' to: '{#status: #R}' probability: [ :m | m atParameter: #gamma ].
 ]]]
 
+Paste this script in the Workspace tool, define the simulations on this model, we obtain the results as in Figure *SIR_RK4*.
++Deterministic dynamics of the SIR model without demography>file://figures/SIR_RK4.png|label=SIR_RK4+
+We can find that, the two scripts returns identical results. As a domain specific language, using Kendrick is more simple.
 
 !! SIR model with births and deaths
 !!! Equations

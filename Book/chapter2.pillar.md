@@ -21,7 +21,7 @@ The individual\-based simulator allows to reach the model at more detailed level
 
 ###1\.  Simple SIR \(without births and deaths\)
 
-Program 2\.1 is a simple SIR model \(page 19 of the book\)\. These are the equations and the code of the model:
+Program 2\.1 is a simple SIR model\. These are the equations and the code of the model:
 
 
 
@@ -31,14 +31,15 @@ Program 2\.1 is a simple SIR model \(page 19 of the book\)\. These are the equat
 
 
 ####1\.2\.  Pharo code
+Here, we just demonstrate the code written in Smalltalk language to resolve the system of equations and view the results\.
 
 
 ```smalltalk
-|solver system dt beta gamma values stepper diag colors maxTime|
-dt := 1.0.
-beta := 1.4247.
-gamma := 0.14286.
-maxTime := 70.0.
+|solver system dt beta gamma values stepper diag colors maxTime st legend|
+dt := 0.001.
+beta := 0.0052.
+gamma := 52.
+maxTime := 1.
 system := ExplicitSystem block: [ :x :t| |c|
      c := Array new: 3.
      c at: 1 put: (beta negated) * (x at: 1) * (x at: 2).
@@ -48,44 +49,57 @@ system := ExplicitSystem block: [ :x :t| |c|
      ].
 stepper := RungeKuttaStepper onSystem: system.
 solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
-state := { 1-1e-6. 1e-6. 0}.
-values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
-                                                          time: t stepSize: dt ].
-diag := OrderedCollection new.
+st := { 99999. 1. 0}.
+values := (0.0 to: maxTime by: dt) collect: [ :t| st := stepper doStep: st time: t stepSize: dt ].
+
+diag := RTGrapher new.
+diag extent: 400 @ 200.
+
 colors := Array with: Color blue with: Color red with: Color green.
 1 to: 3 do: [ :i|
-    diag add:
-        ((GETLineDiagram new)
-            models: (1 to: maxTime+1 by: 1);
-            y: [ :x| (values at: x) at: i ];
-            color: (colors at: i))
-     ].
-builder := (GETDiagramBuilder new).
-builder compositeDiagram
-    xAxisLabel: 'Time in days';
-    yAxisLabel: 'Number of Individuals';
-    regularAxis;
-    diagrams: diag.
-builder open.
+	|ds|
+	ds := RTDataSet new.
+	ds points: (1.0 to: ((maxTime/dt)+1) by: 1).
+	ds y: [ :x| (values at: x) at: i ].
+	ds x: [ :t| (t - 1)*dt].
+	ds noDot.
+	ds connectColor: (colors at: i).
+	diag add: ds ].
+diag axisX title: 'Time (year)'.
+diag axisY title: 'Number of individuals'.
+diag axisY noDecimal.
+legend := RTLegendBuilder new.
+legend view: diag view.
+legend addText: 'Compartments'.
+legend addColor: (colors at: 1) text: '#status: #S'.
+legend addColor: (colors at: 2) text: '#status: #I'.
+legend addColor: (colors at: 3) text: '#status: #R'.
+legend build.
+diag build.
+diag view @ RTZoomableView.
+^ diag view
 ```
 
 
-
+Executing this script we obtain the results of the system of equations as in Figure [1\.1](#SIR_RK4_pharo)
+<a name="SIR_RK4_pharo"></a>![SIR_RK4_pharo](figures/SIR_RK4_pharo.png "Deterministic dynamics of the SIR model using Smalltalk")
 
 
 ####1\.3\.  Kendrick code
 
 We use now the Kendrick DSL to express the SIR model\.
 We start to create an instance of KEModel and then enumerate the compartment names with their initial value\.
-In this model, we have 3 compartments S, I and R\.
+In this model, we have 3 compartments S, I and R\. The population has one attribute *status*\.
 There is at least one infected in order to start the process\.
-2 transitions are added to the model, one from S to I and another one from I to R\.
+Two transitions are added to the model, one from S to I and another one from I to R\.
+The parameters of the model \.
 
 
 
 ```smalltalk
 | model |
 	model := KEModel new.
+  model population attributes: '{ #status: [#S, #I, #R] }'.
 	model
 		buildFromCompartments:
 			'{
@@ -102,6 +116,9 @@ There is at least one infected in order to start the process\.
 ```
 
 
+
+Paste this script in the Workspace tool, define the simulations on this model, we obtain the results as in Figure [1\.2](#SIR_RK4)\.
+<a name="SIR_RK4"></a>![SIR_RK4](figures/SIR_RK4.png "Deterministic dynamics of the SIR model without demography")
 
 
 
@@ -380,249 +397,6 @@ The parameters of Kendrick model is not only a constant but also a temporal func
 		addEquation: 'I:t=sigma*E-gamma*I-mu*I' parseAsAnEquation.
 	model
 		addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
-```
-
-
-
-
-
-###6\.  SIR model with three species of hosts
-
-In the standard models of epidemiology, the population is compartmentalized by only clinic status\.
-As such, the population has only one degree of subdivision\.
-In a context of multi\-host \(multi\-species\) model, the host population has two degrees of subdivision due to the attribute species of each individual\.
-
-
-
-####6\.1\.  Equations
-
-
-
-
-####6\.2\.  Configurations of Kendrick model
-
-In epidemiology, it is important to distinguish between two basic assumptions in terms of the underlying structure of contacts within the population\.
-Either the model is assumed to be mass action or pseudo mass action\.
-The first kind reflects the situation where the number of contacts is independent of the population size\.
-So that the force of infection \.
-In some circumstances, the transmission rate  is rescaled by \.
-The second one assumes that as the population size increases, so does the contact rate\.
-As such the force of infection \.
-
-At the moment, Kendrick model includes three parameters of configuration: sizeOfPopulation, rescale, mass\_action\.
-By default:
-
-
-
-```smalltalk
-#sizeOfPopulation->#population
-#rescale->true
-#mass_action->true
-```
-
-
-
-In the context of the multi\-species model, it is important to config the size of population for each species\.
-As such:
-
-
-
-```smalltalk
-model configurations: {#sizeOfPopulation->#(#species)}
-```
-
-
-
-
-
-####6\.3\.  Kendrick model
-
-In this model, we define the parameter  for three scopes corresponding to each species\.
-In order to represent the interaction between three species, we define a contact network\.
-Due to this network, the force of infection will be modified as:
-
-where  denotes the strength of connection between species  and \.
-
-
-
-```smalltalk
-| model graph |
-	model := KEModel new.
-	model
-		population:
-			(KEMetaPopulation new
-				attributes:
-					{(#status -> #(#S #I #R)).
-					(#species -> #(#mosquito #reservoir1 #reservoir2))}).
-	model
-		buildFromAttributes: #(#status #species)
-		compartments:
-			{(#(#S #mosquito) -> 9800).
-			(#(#I #mosquito) -> 200).
-			(#(#R #mosquito) -> 0).
-			(#(#S #reservoir1) -> 1000).
-			(#(#I #reservoir1) -> 0).
-			(#(#R #reservoir1) -> 0).
-			(#(#S #reservoir2) -> 2000).
-			(#(#I #reservoir2) -> 0).
-			(#(#R #reservoir2) -> 0)}.
-	model addParameter: #mu
-		   inScopes: {
-				#species->#mosquito.
-				#species->#reservoir1.
-				#species->#reservoir2}
-		   values: #(12.17 0.05 0.05).
-	model addParameter: #gamma value: 52.
-	model addParameter: #beta value: 1.
-	model addParameter: #N value: #sizeOfPopulation.
-	model configurations: { #sizeOfPopulation->#(#species) }.
-
-	graph := KEContactNetwork
-			newOn: model population
-			atAttribute: #species.
-	graph edges: { #mosquito->#reservoir1. #mosquito->#reservoir2 };
-			strengthOfAllConnections: 0.02.
-	model
-		addTransitionFrom: '{#status: #S}'
-		to: '{#status: #I}'
-		probability: [ :m | (m atParameter: #beta) * (m probabilityOfContact: '{#status: #I}') ].
-	model
-		addTransitionFrom: '{#status: #I}'
-		to: '{#status: #R}'
-		probability: [ :m | m atParameter: #gamma ].
-	model
-		addTransitionFrom: '{#status: #S}'
-		to: #empty
-		probability: [ :m | m atParameter: #mu ].
-	model
-		addTransitionFrom: '{#status: #I}'
-		to: #empty
-		probability: [ :m | m atParameter: #mu ].
-	model
-		addTransitionFrom: '{#status: #R}'
-		to: #empty
-		probability: [ :m | m atParameter: #mu ].
-	model
-		addTransitionFrom: #empty
-		to: '{#status: #S}'
-		probability: [ :m | m atParameter: #mu ].
-```
-
-
-
-
-
-###7\.  SEIR model with spatial dynamics
-
-We investigate the impact of spatial effects\.
-Considering a spatial model organised by n patches arranged in a ring\.
-The individuals can move between two neighbouring patches\.
-In each patch, we have a sub\-population with four compartments S, E, I and R\.
-To specify this model, we use the Migration Network built in Kendrick\. Due to this network, the model will have migration transitions from one compartment to other\.
-
-
-
-####7\.1\.  Equations
-
-
-
-
-
-####7\.2\.  Kendrick model
-
-
-
-```smalltalk
-| model graph |
-model := KEModel new.
-model population: KEMetaPopulation new.
-model population attributes: {
-	#patch->((1 to: 5)).
-	#status->#(S E I R)}.
-model
-	buildFromAttributes: #(#status #patch)
-	compartments: {
-		  (#(#S 1) -> 900). (#(#E 1) -> 0). (#(#I 1) -> 100). (#(#R 1) -> 0).
-        (#(#S 2) -> 1000). (#(#E 2) -> 0). (#(#I 2) -> 0). (#(#R 2) -> 0).
-        (#(#S 3) -> 1000). (#(#E 3) -> 0). (#(#I 3) -> 0). (#(#R 3) -> 0).
-        (#(#S 4) -> 1000). (#(#E 4) -> 0). (#(#I 4) -> 0). (#(#R 4) -> 0).
-        (#(#S 5) -> 1000). (#(#E 5) -> 0). (#(#I 5) -> 0). (#(#R 5) -> 0).
-	}.
-model
-	addParameter: #beta
-	inScopes: {
-		(#patch->1).
-		(#patch->2).
-		(#patch->3).
-		(#patch->4).
-		(#patch->5)
-	}
-	values: #(0.75 0.5 0.5 0.5 0.5).
-model addParameter: '{
-	#v: 0.00274,
-	#d: 0.0000365,
-	#epsilon: 0.5,
-	#gamma: 0.25,
-	#N: #sizeOfPopulation}'.
-model configurations: {
-		#sizeOfPopulation->#(#patch).
-		#rescale->false }.
-graph := KEMigrationNetwork
-				newOn: model population
-				atAttribute: #patch
-				topology: (KERandomSmallWorldNetwork new K: 2; beta: 0).
-graph strengthOfAllConnections: 0.03.
-graph addMigrationTransitionsTo: model.
-
-model addEquation: 'S:t=d*N-d*S-beta*S*I+v*R' parseAsAnEquation.
-model addEquation: 'E:t=beta*S*I-d*E-epsilon*E' parseAsAnEquation.
-model addEquation: 'I:t=epsilon*E-d*I-gamma*I' parseAsAnEquation.
-model addEquation: 'R:t=gamma*I-d*R-v*R' parseAsAnEquation.
-```
-
-
-
-
-
-###8\.  SIS model with multiple risk groups
-We consider here the the SIS model in which the population is structured into multiple risk groups \(host\-heterogeneous model\) labelled 1, 2, \.\.\.
-The group labelled 1 is the lowest risk\. The group labelled 5 is the highest risk\.
-
-
-
-####8\.1\.  Equations
-
-
-
-
-####8\.2\.  Kendrick model
-
-
-```smalltalk
-| model graph |
-	model := KEModel new.
-	model population: KEMetaPopulation new.
-	model population attributes: {#riskGroup->(1 to: 5). #status->#(S I)}.
-	model
-		buildFromAttributes: #(#status #riskGroup)
-		compartments: {
-		  (#(#S 1) -> 6000). (#(#I 1) -> 0).
-        (#(#S 2) -> 31000). (#(#I 2) -> 0).
-        (#(#S 3) -> 52000). (#(#I 3) -> 0).
-        (#(#S 4) -> 8000). (#(#I 4) -> 0).
-        (#(#S 5) -> 2999). (#(#I 5) -> 1).
-		}.
-	model addParameter: #beta value: 16e-9.
-	model addParameter: #gamma value: 0.2.
-
-	graph := KEContactNetwork
-					newOn: model population
-					atAttribute: #riskGroup.
-	graph edges: { 2->2. 2->3. 2->4. 2->5. 3->3. 3->4. 3->5. 4->4. 4->5. 5->5 };
-			strengthOfConnections: #(9 30 180 300 100 600 1000 3600 6000 10000).
-
-	model addEquation: 'S:t=gamma*I-beta*S*I' parseAsAnEquation.
-	model addEquation: 'I:t=beta*S*I-gamma*I' parseAsAnEquation.
 ```
 
 
