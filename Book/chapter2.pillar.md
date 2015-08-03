@@ -118,8 +118,15 @@ The parameters of the model \.
 
 
 Paste this script in the Workspace tool, define the simulations on this model, we obtain the results as in Figure [1\.2](#SIR_RK4)\.
+We can find that, the two scripts returns identical results\. As a DSL for epidemiology, using Kendrick is more simple\.
+Change the algorithm of simulation from *RungeKutta* to *Gillespie* and *IBM* to investigate two other formalisms \(stochastic and agent\-based\)\.
+The results of these simulation are shown in Figure [1\.3](#SIR_Gil) and Figure [1\.4](#SIR_IBM)\.
+
 <a name="SIR_RK4"></a>![SIR_RK4](figures/SIR_RK4.png "Deterministic dynamics of the SIR model without demography")
 
+<a name="SIR_Gil"></a>![SIR_Gil](figures/SIR_Gil.png "Using Gillespie's direct algorithm to study the dynamics of model")
+
+<a name="SIR_IBM"></a>![SIR_IBM](figures/SIR_IBM.png "Agent-based approach to investigate the model at individual level")
 
 
 
@@ -134,45 +141,60 @@ Paste this script in the Workspace tool, define the simulations on this model, w
 ####2\.2\.  Pharo code
 
 
+
 ```smalltalk
-|solver system dt beta gamma values stepper diag mu colors maxTime|
-dt := 1.0.
-mu := 1/(70*365.0).
-beta := 520/365.0.
-gamma := 1/7.0.
-maxTime := 60*365.
+|solver system dt beta gamma N values stepper diag mu colors maxTime st legend|
+dt := 0.1.
+mu := 5e-4.
+beta := 1/5000.
+gamma := 1/10.0.
+N := 5000.
+maxTime := 146.
 system := ExplicitSystem block: [ :x :t| |c|
      c := Array new: 3.
-     c at: 1 put: mu - (beta  * (x at: 1) * (x at: 2)) - (mu * (x at:1)).
+     c at: 1 put: (mu*N) - (beta  * (x at: 1) * (x at: 2)) - (mu * (x at:1)).
      c at: 2 put: (beta * (x at: 1) * (x at: 2)) - (gamma * (x at: 2)) - (mu * (x at:2)).
-     c at: 3 put: (gamma * (x at: 2)) - (mu * (x at: 2)).
+     c at: 3 put: (gamma * (x at: 2)) - (mu * (x at: 3)).
      c
      ].
 
 stepper := RungeKuttaStepper onSystem: system.
 solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
-state := { 0.1. 1e-4. 1-0.1-1e-4}.
-values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
+st := #(4975 25 0).
+values := (0.0 to: maxTime by: dt) collect: [ :t| st := stepper doStep: st
                                                           time: t stepSize: dt ].
-diag := OrderedCollection new.
+diag := RTGrapher new.
+diag extent: 400 @ 200.
+
 colors := Array with: Color blue with: Color red with: Color green.
 1 to: 3 do: [ :i|
-    diag add:
-        ((GETLineDiagram new)
-            models: (1 to: maxTime+1 by: 1);
-            y: [ :x| (values at: x) at: i ];
-            color: (colors at: i))
-     ].
-builder := (GETDiagramBuilder new).
-builder compositeDiagram
-    xAxisLabel: 'Time in days';
-    yAxisLabel: 'Number of Individuals';
-    regularAxis;
-    diagrams: diag.
-builder open.
+	|ds|
+	ds := RTDataSet new.
+	ds points: (1.0 to: ((maxTime/dt)+1) by: 1).
+	ds y: [ :x| (values at: x) at: i ].
+	ds x: [ :t| (t - 1)*dt].
+	ds noDot.
+	ds connectColor: (colors at: i).
+	diag add: ds ].
+diag axisX title: 'Time (days)'.
+diag axisY title: 'Number of individuals'.
+diag axisY noDecimal.
+legend := RTLegendBuilder new.
+legend view: diag view.
+legend addText: 'Compartments'.
+legend addColor: (colors at: 1) text: '#status: #S'.
+legend addColor: (colors at: 2) text: '#status: #I'.
+legend addColor: (colors at: 3) text: '#status: #R'.
+legend build.
+diag build.
+diag view @ RTZoomableView.
+^ diag view
 ```
 
 
+Running this script will give the results as can be seen in Figure [2\.1](#SIR_Dem_RK4_pharo)
+
+<a name="SIR_Dem_RK4_pharo"></a>![SIR_Dem_RK4_pharo](figures/SIR_Dem_RK4_pharo.png "Resolving the system of equations of the SIR model with demography")
 
 
 
@@ -205,6 +227,9 @@ We use the ODE syntax to specify this model\.
 ```
 
 
+Using deterministic simulation on this model we obtain the result as can be seen in Figure [2\.2](#SIR_Dem_RK4)
+
+<a name="SIR_Dem_RK4"></a>![SIR_Dem_RK4](figures/SIR_Dem_RK4.png "Deterministic dynamics of the SIR model with demography using Kendrick language")
 
 
 

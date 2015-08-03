@@ -408,11 +408,31 @@ The parameters of the model  $\beta = 0.0052$ and $\gamma=52$.
 
 
 Paste this script in the Workspace tool, define the simulations on this model, we obtain the results as in Figure \ref{SIR_RK4}.
+We can find that, the two scripts returns identical results. As a DSL for epidemiology, using Kendrick is more simple.
+Change the algorithm of simulation from \textit{RungeKutta} to \textit{Gillespie} and \textit{IBM} to investigate two other formalisms (stochastic and agent-based).
+The results of these simulation are shown in Figure \ref{SIR_Gil} and Figure \ref{SIR_IBM}.
+
 
 \begin{figure}
 
 \begin{center}
 \includegraphics[width=1.0\textwidth]{figures/SIR_RK4.png}\caption{Deterministic dynamics of the SIR model without demography.\label{SIR_RK4}}\end{center}
+\end{figure}
+
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SIR_Gil.png}\caption{Using Gillespie's direct algorithm to study the dynamics of model.\label{SIR_Gil}}\end{center}
+\end{figure}
+
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SIR_IBM.png}\caption{Agent-based approach to investigate the model at individual level.\label{SIR_IBM}}\end{center}
 \end{figure}
 
 \section{ SIR model with births and deaths}\subsection{ Equations}
@@ -430,42 +450,62 @@ Paste this script in the Workspace tool, define the simulations on this model, w
 % syntax highlighting = smalltalk
 
 \begin{code}{}
-|solver system dt beta gamma values stepper diag mu colors maxTime|
-dt := 1.0.
-mu := 1/(70*365.0).
-beta := 520/365.0.
-gamma := 1/7.0.
-maxTime := 60*365.
+|solver system dt beta gamma N values stepper diag mu colors maxTime st legend|
+dt := 0.1.
+mu := 5e-4.
+beta := 1/5000.
+gamma := 1/10.0.
+N := 5000.
+maxTime := 146.
 system := ExplicitSystem block: [ :x :t| |c|
      c := Array new: 3.
-     c at: 1 put: mu - (beta  * (x at: 1) * (x at: 2)) - (mu * (x at:1)).
+     c at: 1 put: (mu*N) - (beta  * (x at: 1) * (x at: 2)) - (mu * (x at:1)).
      c at: 2 put: (beta * (x at: 1) * (x at: 2)) - (gamma * (x at: 2)) - (mu * (x at:2)).
-     c at: 3 put: (gamma * (x at: 2)) - (mu * (x at: 2)).
+     c at: 3 put: (gamma * (x at: 2)) - (mu * (x at: 3)).
      c
      ].
 
 stepper := RungeKuttaStepper onSystem: system.
 solver := (ExplicitSolver new) stepper: stepper; system: system; dt: dt.
-state := { 0.1. 1e-4. 1-0.1-1e-4}.
-values := (0.0 to: maxTime by: dt) collect: [ :t| |state| state := stepper doStep: state
+st := #(4975 25 0).
+values := (0.0 to: maxTime by: dt) collect: [ :t| st := stepper doStep: st
                                                           time: t stepSize: dt ].
-diag := OrderedCollection new.
+diag := RTGrapher new.
+diag extent: 400 @ 200.
+
 colors := Array with: Color blue with: Color red with: Color green.
 1 to: 3 do: [ :i|
-    diag add:
-        ((GETLineDiagram new)
-            models: (1 to: maxTime+1 by: 1);
-            y: [ :x| (values at: x) at: i ];
-            color: (colors at: i))
-     ].
-builder := (GETDiagramBuilder new).
-builder compositeDiagram
-    xAxisLabel: 'Time in days';
-    yAxisLabel: 'Number of Individuals';
-    regularAxis;
-    diagrams: diag.
-builder open.
+	|ds|
+	ds := RTDataSet new.
+	ds points: (1.0 to: ((maxTime/dt)+1) by: 1).
+	ds y: [ :x| (values at: x) at: i ].
+	ds x: [ :t| (t - 1)*dt].
+	ds noDot.
+	ds connectColor: (colors at: i).
+	diag add: ds ].
+diag axisX title: 'Time (days)'.
+diag axisY title: 'Number of individuals'.
+diag axisY noDecimal.
+legend := RTLegendBuilder new.
+legend view: diag view.
+legend addText: 'Compartments'.
+legend addColor: (colors at: 1) text: '#status: #S'.
+legend addColor: (colors at: 2) text: '#status: #I'.
+legend addColor: (colors at: 3) text: '#status: #R'.
+legend build.
+diag build.
+diag view @ RTZoomableView.
+^ diag view
 \end{code}
+
+Running this script will give the results as can be seen in Figure \ref{SIR_Dem_RK4_pharo}
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SIR_Dem_RK4_pharo.png}\caption{Resolving the system of equations of the SIR model with demography.\label{SIR_Dem_RK4_pharo}}\end{center}
+\end{figure}
 
 \subsection{Kendrick code}
 Comparing to the previous model, in this model, it should add four other transitions. The first one represents the births of susceptible.
@@ -493,6 +533,15 @@ We use the ODE syntax to specify this model.
 	model addEquation: 'I:t=beta*S*I-gamma*I-mu*I' parseAsAnEquation.
 	model addEquation: 'R:t=gamma*I-mu*R' parseAsAnEquation.
 \end{code}
+
+Using deterministic simulation on this model we obtain the result as can be seen in Figure \ref{SIR_Dem_RK4}
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/SIR_Dem_RK4.png}\caption{Deterministic dynamics of the SIR model with demography using Kendrick language.\label{SIR_Dem_RK4}}\end{center}
+\end{figure}
 
 \section{ SEIR model with births and deaths}
 We introduce here a SEIR model. The E status means that a susceptible becomes infected but not yet infectious.
