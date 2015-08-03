@@ -1,1 +1,43 @@
-! Host Heterogeneities
+! Heterogeneous Host Models
+
+!! SIS model with multiple risk groups
+We consider here the the SIS model in which the population is structured into multiple risk groups (host-heterogeneous model) labelled 1, 2, ...
+The group labelled 1 is the lowest risk. The group labelled 5 is the highest risk.
+
+!!! Equations
+{{{latex:
+  \begin{equation}
+    \frac{dS_i}{dt} = \gamma_i I_i - \sum_j \beta_{ij} S_i I_j
+  \end{equation}
+  \begin{equation}
+    \frac{dI_i}{dt} = \sum_j \beta_{ij} S_i I_j - \gamma_i I_i
+  \end{equation}
+  }}}
+
+!!! Kendrick model
+[[[language=smalltalk
+| model graph |
+	model := KEModel new.
+	model population: KEMetaPopulation new.
+	model population attributes: {#riskGroup->(1 to: 5). #status->#(S I)}.
+	model
+		buildFromAttributes: #(#status #riskGroup)
+		compartments: {
+		  (#(#S 1) -> 6000). (#(#I 1) -> 0).
+        (#(#S 2) -> 31000). (#(#I 2) -> 0).
+        (#(#S 3) -> 52000). (#(#I 3) -> 0).
+        (#(#S 4) -> 8000). (#(#I 4) -> 0).
+        (#(#S 5) -> 2999). (#(#I 5) -> 1).
+		}.
+	model addParameter: #beta value: 16e-9.
+	model addParameter: #gamma value: 0.2.
+
+	graph := KEContactNetwork
+					newOn: model population
+					atAttribute: #riskGroup.
+	graph edges: { 2->2. 2->3. 2->4. 2->5. 3->3. 3->4. 3->5. 4->4. 4->5. 5->5 };
+			strengthOfConnections: #(9 30 180 300 100 600 1000 3600 6000 10000).
+
+	model addEquation: 'S:t=gamma*I-beta*S*I' parseAsAnEquation.
+	model addEquation: 'I:t=beta*S*I-gamma*I' parseAsAnEquation.
+]]]

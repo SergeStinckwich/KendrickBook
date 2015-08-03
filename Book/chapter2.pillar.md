@@ -1,6 +1,6 @@
 
 
-## Introduction to Simple Epidemic Model
+##Introduction to Simple Epidemic Model
 
 The targeted model of the **Kendrick** language is compartmental model such as the SIR, SEIR model \.\.\. in which the individuals are first considered as *Susceptible* to pathogen \(status S\), then can be infected, assumed *Infectious* \(status I\) that can spread the infection and *Recovery* \(status R\) who are immunised and cannot become infected again\. The transition of status between compartments is represented mathematically as derivatives of compartment size with respect to time\.
 
@@ -191,43 +191,16 @@ We use the ODE syntax to specify this model\.
 
 
 
-###3\.  SIR model with disease induced mortality and density dependent transmission
-
-
-####3\.1\.  Equations
-
-
-
-
-###4\.  SIR model, disease induced mortality and frequency dependent transmission
-
-
-####4\.1\.  Equations
-
-
-
-####4\.2\.  Pharo code
-
-
-
-###5\.  SIS model without births or deaths
-
-
-####5\.1\. Equations
-
-
-
-
-###6\.  SEIR model with births and deaths
+###3\.  SEIR model with births and deaths
 We introduce here a SEIR model\. The E status means that a susceptible becomes infected but not yet infectious\.
 
 
-####6\.1\. Equations
+####3\.1\. Equations
 
 
 
 
-####6\.2\. Kendrick code
+####3\.2\. Kendrick code
 Here, we use the parameters of measles model\. The time unit is day\.
 
 
@@ -288,16 +261,16 @@ Here, we use the parameters of measles model\. The time unit is day\.
 
 
 
-###7\.  SEIR model with vaccination at births
+###4\.  SEIR model with vaccination at births
 
 
 
-####7\.1\.  Equations
+####4\.1\.  Equations
 
 
 
 
-####7\.2\.  Kendrick code
+####4\.2\.  Kendrick code
 
 
 
@@ -362,18 +335,18 @@ Here, we use the parameters of measles model\. The time unit is day\.
 
 
 
-###8\.  SEIR model with seasonal forcing
+###5\.  SEIR model with seasonal forcing
 
 The parameters of Kendrick model is not only a constant but also a temporal function as in this model\.
 
 
 
-####8\.1\.  Equations
+####5\.1\.  Equations
 
 
 
 
-####8\.2\.  Kendrick code
+####5\.2\.  Kendrick code
 
 
 
@@ -413,11 +386,7 @@ The parameters of Kendrick model is not only a constant but also a temporal func
 
 
 
-###9\.  SIR with a carrier state
-
-
-
-###10\.  SIR model with three species of hosts
+###6\.  SIR model with three species of hosts
 
 In the standard models of epidemiology, the population is compartmentalized by only clinic status\.
 As such, the population has only one degree of subdivision\.
@@ -425,12 +394,12 @@ In a context of multi\-host \(multi\-species\) model, the host population has tw
 
 
 
-####10\.1\.  Equations
+####6\.1\.  Equations
 
 
 
 
-####10\.2\.  Configurations of Kendrick model
+####6\.2\.  Configurations of Kendrick model
 
 In epidemiology, it is important to distinguish between two basic assumptions in terms of the underlying structure of contacts within the population\.
 Either the model is assumed to be mass action or pseudo mass action\.
@@ -466,7 +435,7 @@ model configurations: {#sizeOfPopulation->#(#species)}
 
 
 
-####10\.3\.  Kendrick model
+####6\.3\.  Kendrick model
 
 In this model, we define the parameter  for three scopes corresponding to each species\.
 In order to represent the interaction between three species, we define a contact network\.
@@ -543,7 +512,7 @@ where  denotes the strength of connection between species  and \.
 
 
 
-###11\.  SEIR model with spatial dynamics
+###7\.  SEIR model with spatial dynamics
 
 We investigate the impact of spatial effects\.
 Considering a spatial model organised by n patches arranged in a ring\.
@@ -553,13 +522,13 @@ To specify this model, we use the Migration Network built in Kendrick\. Due to t
 
 
 
-####11\.1\.  Equations
+####7\.1\.  Equations
 
 
 
 
 
-####11\.2\.  Kendrick model
+####7\.2\.  Kendrick model
 
 
 
@@ -615,18 +584,18 @@ model addEquation: 'R:t=gamma*I-d*R-v*R' parseAsAnEquation.
 
 
 
-###12\.  SIS model with multiple risk groups
+###8\.  SIS model with multiple risk groups
 We consider here the the SIS model in which the population is structured into multiple risk groups \(host\-heterogeneous model\) labelled 1, 2, \.\.\.
 The group labelled 1 is the lowest risk\. The group labelled 5 is the highest risk\.
 
 
 
-####12\.1\.  Equations
+####8\.1\.  Equations
 
 
 
 
-####12\.2\.  Kendrick model
+####8\.2\.  Kendrick model
 
 
 ```smalltalk

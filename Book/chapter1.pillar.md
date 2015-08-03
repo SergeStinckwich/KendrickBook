@@ -168,3 +168,126 @@ and the workspace\.
 From the the World Menu, select the "Tools" and after that the Configuration Browser\.
 Find in the Configuration Browser, the Kendrick configuration and select it\. Click on "Install Stable version"\.
 You need to be connected to the Internet, in order to download the Kendrick package\.
+
+
+
+###6\. Finding out the Examples package integrated in Kendrick
+From the World menu, select the "System Browser"\.
+Type "Kendrick" in the searching textbox to find the Kendrick packages then expanding "Kendrick"\.
+All the integrated examples of Kendrick could be found in the "Examples" package\.
+To run an example, from the World menu, select Workspace\. In the Playground form, type a script to create an example and run it\.
+For example:
+
+
+```smalltalk
+KEDeterministicExamples new exampleRK4SolverOnSIRSimpleModel
+```
+
+
+**KEDeterministicExamples**: class name\.
+
+**exampleRK4SolverOnSIRSimpleModel**: method name\.
+
+Then click on the play button to run the script\. The result will be represented in the next view \(Figure [6\.1](#Playground)\)
+
+<a name="Playground"></a>![Playground](figures/Playground.png "Run the script in the Playground")
+
+
+
+###7\. Launching models with simulation tools of Kendrick
+An epidemiological model can be interpreted to run a deterministic, stochastic or agent\-based simulation\.
+The simulations are written once but for all the Kendrick models\.
+
+Once the model is specified, create new instance of KESimulator and determine the parameters of simulation such as: algorithm, starting time, ending time and the step\.
+For example:
+
+
+```smalltalk
+simulator := KESimulator new: #RungeKutta from: 0.0 to: 1.0 step: 0.001.
+simulator executeOn: model.
+```
+
+
+For this moment, the platform supported the algorithms: ODE Solvers \(RungeKutta, Euler, etc\.\), Gillespie's direct, Explicit Tau Leap and Individual\-based simulation\.
+The scripts following allows to create these simulations:
+
+
+```smalltalk
+simulator := KESimulator new: #Gillespie from: 0.0 to: 1.0 step: 0.001.
+simulator executeOn: model.
+```
+
+
+
+
+
+```smalltalk
+simulator := KESimulator new: #TauLeap from: 0.0 to: 1.0 step: 0.001.
+simulator executeOn: model.
+```
+
+
+
+
+
+```smalltalk
+simulator := KESimulator new: #IBM from: 0.0 to: 1.0 step: 0.001.
+simulator executeOn: model.
+```
+
+
+
+In Kendrick platform, the simulation results are stored as time series\.
+
+
+```smalltalk
+simulator allTimeSeries
+```
+
+
+This script will return an array of all time series\.
+To obtain the time series of a compartment, just indicate the name of this compartment as parameter of the function "timeSeriesAt"\.
+
+
+```smalltalk
+simulator timeSeriesAt: '{#status: #I}'
+```
+
+
+These scripts below allow to apply an additional function on the time series\.
+
+
+```smalltalk
+(simulator timeSeriesAt: '{#status: #I}') sqrt
+```
+
+
+
+
+
+```smalltalk
+(simulator timeSeriesAt: '{#status: #I}') log
+```
+
+
+
+The time series then are passed as data of the diagram builder to view the simulation results:
+
+
+```smalltalk
+diag := (KEDiagramBuilder new) data: simulator allTimeSeries.
+diag open
+```
+
+
+Other configurations of diagram:
+
+
+```smalltalk
+diag xLabel: 'Time (years)'.
+diag yLabel: 'Infectious'.
+diag legendTitle: 'Vaccination rate'
+```
+
+
+By default, xLabel: Time \(days\), yLabel: Number of individuals, legendTitle: Compartments\.
