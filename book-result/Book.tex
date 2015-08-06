@@ -872,7 +872,97 @@ In the case of IBM, we reduce the size of population and increase the value of p
 \includegraphics[width=1.0\textwidth]{figures/Multi_Risk_IBM.png}\caption{Stochastic dynamics of multi-risk-group model using agent-based approach.\label{Multi_Risk_IBM}}\end{center}
 \end{figure}
 
-\chapter{ Multi-Pathogen$/$Multi-Host Models}\section{ SIR model with three species of hosts}
+\chapter{ Multi-Pathogen$/$Multi-Host Models}
+Here, we consider two concerns of epidemiology: multiple diseases or strains spreading through one host species and single disease that can be transmitted between different host species.
+\section{ Simple SIR model with two strains}
+We deal with two co-circulating strains within a simplified SIR framework. These two strains are transmitted in the same population of susceptible.
+The system of equations represents this model is following:
+
+ \begin{equation}
+  \frac{dS}{dt} = \mu*N - \beta_1*S*I_1 - \beta_2*S*I_2 - \mu*S
+ \end{equation}
+ \begin{equation}
+  \frac{dI_1}{dt} = \beta_1*S*I_1 - \gamma_1*I_1 - \mu*I_1
+ \end{equation}
+ \begin{equation}
+  \frac{dI_2}{dt} = \beta_2*S*I_2 - \gamma_2*I_2 - \mu*I_2
+ \end{equation}
+ \begin{equation}
+  \frac{dR}{dt} = \gamma_1*I_1 + \gamma_2*I_2 - \mu*R
+ \end{equation}
+% syntax highlighting = smalltalk
+
+\begin{code}{}
+|model simulator db data|
+	model := KEModel new.
+	model population attributes: {#status->#(#S #I1 #I2 #R)}.
+	model buildFromCompartments: '{
+		{ #status: #S }: 9900,
+		{ #status: #I1 }: 99,
+		{ #status: #I2 }: 1,
+		{ #status: #R }: 0
+	}'.
+	model addParameter: #beta1 value: 0.00002.
+	model addParameter: #beta2 value: 0.00018.
+	model addParameter: #gamma1 value: 0.1.
+	model addParameter: #gamma2 value: 1.
+	model addParameter: #mu value: 5e-5.
+
+	model
+		addTransitionFrom: '{#status:#S}'
+		to: '{#status: #I1}'
+		probability: [ :m| (m atParameter: #beta1) * (m probabilityOfContact: '{#status:#I1}') ].
+	model
+		addTransitionFrom: '{#status:#S}'
+		to: '{#status:#I2}'
+		probability: [ :m| (m atParameter: #beta2) * (m probabilityOfContact: '{#status: #I2}') ].
+	model
+		addTransitionFrom: '{#status: #I1}'
+		to: '{#status: #R}'
+		probability: [ :m| (m atParameter: #gamma1) ].
+	model
+		addTransitionFrom: '{#status: #I2}'
+		to: '{#status: #R}'
+		probability: [ :m| (m atParameter: #gamma2) ].
+	model
+		addTransitionFrom: '{#status: #S}'
+		to: #empty
+		probability: [ :m| (m atParameter: #mu) ].
+	model
+		addTransitionFrom: '{#status: #I1}'
+		to: #empty
+		probability: [ :m| (m atParameter: #mu) ].
+	model
+		addTransitionFrom: '{#status: #I2}'
+		to: #empty
+		probability: [ :m| (m atParameter: #mu) ].
+	model
+		addTransitionFrom: '{#status: #R}'
+		to: #empty
+		probability: [ :m| (m atParameter: #mu) ].
+	model
+		addTransitionFrom: #empty
+		to: '{#status: #S}'
+		probability: [ :m| (m atParameter: #mu) ].
+
+	simulator := KESimulator new: #RungeKutta from: 0.0 to: 150 step: 0.1.
+	simulator executeOn: model.
+	data := OrderedCollection new.
+	data addAll: (simulator timeSeriesAt: '{#status: #I1}').
+	data addAll: (simulator timeSeriesAt: '{#status: #I2}').
+	db := KEDiagramBuilder new data: data.
+	db view
+\end{code}
+
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/Multi_Strain_RK4.png}\caption{Deterministic dynamics of two infectious compartments.\label{Multi_Strain_RK4}}\end{center}
+\end{figure}
+
+\section{ SIR model with three species of hosts}
 In the standard models of epidemiology, the population is compartmentalized by only clinic status.
 As such, the population has only one degree of subdivision.
 In a context of multi-host (multi-species) model, the host population has two degrees of subdivision due to the attribute species of each individual.
@@ -994,6 +1084,18 @@ where  $\rho_{ij}$ denotes the strength of connection between species  $i$ and  
 		probability: [ :m | m atParameter: #mu ].
 \end{code}
 
+
+
+\begin{figure}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{figures/Multi_Host_RK4.png}\caption{Deterministic dynamics of three hosts species.\label{Multi_Host_RK4}}\end{center}
+\end{figure}
+
+
+\href{figures/Multi_Host_Gil}{Stochastic dynamics of three hosts species using Gillespie's direct}
+
+\href{figures/Multi_Host_IBM}{Stochastic dynamics of three hosts species using agent-based approach}
 \chapter{ Spatial models}\section{ SEIR model with spatial dynamics}
 We investigate the impact of spatial effects.
 Considering a spatial model organised by n patches arranged in a ring.
